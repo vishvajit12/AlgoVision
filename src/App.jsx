@@ -6,6 +6,7 @@ import HomePage     from './pages/HomePage';
 import BrowsePage   from './pages/BrowsePage';
 import ProblemPage  from './pages/ProblemPage';
 import ContactPage  from './pages/ContactPage';
+import { Analytics } from "@vercel/analytics/react"
 
 export default function App() {
   const [user,      setUser]      = useState(null);
