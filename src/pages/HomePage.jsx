@@ -324,8 +324,7 @@ export default function HomePage({ user }) {
            }
          `}</style>
          <img
-           src="public/sunny2-removebg-preview.png"
-           alt="bye"
+           src="/sunny2-removebg-preview.png" alt="Sunny"
            className={`ship-floating ${shipActive ? 'ship-sail-active' : ''} pointer-events-none absolute right-0 bottom-0 w-60 opacity-90 hidden sm:block`}
          />
          <div className="max-w-xl mx-auto">
