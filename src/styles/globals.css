@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;800&display=swap');
+.font-rounded { font-family: 'Baloo 2', sans-serif; }
+
+/* ── Robot animations ── */
+/* @keyframes robo-float  { 0%,100%{ transform:translateY(0) }    50%{ transform:translateY(-14px) } }
+@keyframes robo-blink  { 0%,88%,100%{ transform:scaleY(1) }    92%{ transform:scaleY(0.06) } }
+@keyframes robo-wave   { 0%,100%{ transform:rotate(-10deg) }   50%{ transform:rotate(24deg) } }
+@keyframes robo-pulse  { 0%,100%{ opacity:1; transform:scale(1) } 50%{ opacity:.3; transform:scale(.78) } }
+@keyframes robo-scan   { 0%,100%{ opacity:.35 }  50%{ opacity:1 } }
+@keyframes bubble-pop  { 0%,100%{ transform:translateY(0) rotate(-2deg) } 50%{ transform:translateY(-6px) rotate(2deg) } }
+@keyframes fade-up     { from{ opacity:0; transform:translateY(20px) } to{ opacity:1; transform:translateY(0) } }
+
+.robo-float  { animation: robo-float  3.2s ease-in-out infinite; }
+.robo-blink  { animation: robo-blink  4.6s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+.robo-wave   { animation: robo-wave   2.4s ease-in-out infinite; transform-box:fill-box; transform-origin:0% 50%; }
+.robo-pulse  { animation: robo-pulse  1.8s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+.robo-scan   { animation: robo-scan   2.4s ease-in-out infinite; }
+.robo-scan2  { animation: robo-scan   2.4s ease-in-out infinite 0.85s; }
+.bubble-pop  { animation: bubble-pop  4s   ease-in-out infinite 0.6s; }
+.fade-up     { animation: fade-up     0.5s ease both; } */
+
+/* ── Custom utilities ── */
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar       { width: 5px; height: 5px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+}
+
+/* ── Base resets ── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  pre, code { font-family: 'Fira Code', 'Courier New', monospace; }
+  ::-webkit-scrollbar       { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+}
+
+/* font-rounded — the chunky rounded look of the Boy-Coy wordmark */
+
+
+/* .stack-section {
+  position: sticky;
+  top: 0;
+  z-index: var(--stack-z);
+  box-shadow: 0 -8px 30px rgba(0,0,0,0.15);
+} */
+
+
+
+
