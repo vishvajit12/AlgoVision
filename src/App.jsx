@@ -34,6 +34,7 @@ export default function App() {
         <Route path="/contact"     element={<ContactPage />} />
         <Route path="*"            element={<HomePage user={user} />} />
       </Routes>
+      <Analytics />
     </HashRouter>
   );
 }
