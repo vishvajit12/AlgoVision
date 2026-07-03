@@ -24,7 +24,9 @@ export default function App() {
   };
 
   return (
+    
     <HashRouter>
+      <Analytics />
       {showModal && <WelcomeModal onClose={handleModalClose} />}
       <Navbar user={user} />
       <Routes>

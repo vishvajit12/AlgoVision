@@ -35,15 +35,31 @@ export default function HomePage({ user }) {
   useEffect(() => {
     const el = phase2Ref.current;
     if (!el) return;
+    const onIntersect = ([entry]) => setShipActive(entry.isIntersecting);
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setShipActive(entry.isIntersecting);
-      },
-      { threshold: 0.01} // fires once 1% of the section is visible
-    );
+    // Use threshold 0 so the section is considered intersecting immediately
+    // when any pixel enters the viewport. rootMargin left as default.
+    const observer = new IntersectionObserver(onIntersect, { threshold: 0 });
 
     observer.observe(el);
+
+    // Immediate visibility check — in case the user navigated directly
+    // to this page and the IntersectionObserver hasn't fired yet.
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom >= 0) {
+      setShipActive(true);
+    }
+
+    // Preload the ship image so it renders instantly when the section
+    // becomes visible (avoids network delay on first paint).
+    const preloadImg = new Image();
+    preloadImg.loading = 'eager';
+    preloadImg.src = '/sunny2-removebg-preview.png';
+    preloadImg.onload = () => {
+      const r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom >= 0) setShipActive(true);
+    };
+
     return () => observer.disconnect();
   }, []);
 
@@ -323,8 +339,9 @@ export default function HomePage({ user }) {
              animation-play-state: running;
            }
          `}</style>
-         <img
+        <img
            src="/sunny2-removebg-preview.png" alt="Sunny"
+           loading="eager"
            className={`ship-floating ${shipActive ? 'ship-sail-active' : ''} pointer-events-none absolute right-0 bottom-0 w-60 opacity-90 hidden sm:block`}
          />
          <div className="max-w-xl mx-auto">
