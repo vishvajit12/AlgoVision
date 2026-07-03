@@ -213,6 +213,30 @@ export const SOLUTION_STEPS = {
     { num:5, icon:'🏁', title:'Repeat Until Empty',     desc:'Loop back to step 2. Stop when the stack is empty — every node has been visited.' },
   ],
 },
+18: {
+  title: "Boyer-Moore Voting Algorithm",
+  approach:
+    'Think of it as an election with one running "candidate" and a vote count. Walk through nums once. Whenever count hits 0, we have no current champion — so crown whatever number we\'re looking at right now as the new candidate. Then cast a vote: if the current number matches the candidate, count++ (a supporting vote); if it doesn\'t match, count-- (an opposing vote). Because the majority element appears more than n/2 times, it can never be permanently voted out — even if it loses ground temporarily to a mix of other numbers, it always has enough "votes" in the full array to end up as the final surviving candidate.',
+  steps: [
+    { num:1, icon:'🏁', title:'Init candidate & count', desc:'candidate = 0, count = 0. No one is running yet.' },
+    { num:2, icon:'👑', title:'Crown on count == 0',    desc:'If count is 0, the current number becomes the new candidate — a fresh start.' },
+    { num:3, icon:'✅', title:'Matching Vote',           desc:'If num == candidate, count++ — this number supports the current candidate.' },
+    { num:4, icon:'❌', title:'Opposing Vote',            desc:'If num != candidate, count-- — this number opposes the current candidate.' },
+    { num:5, icon:'🏆', title:'Return the Survivor',      desc:'After the full scan, whichever candidate is still standing is guaranteed to be the majority element.' },
+  ],
+},
+19: {
+  title: 'Two Biased Binary Searches',
+  approach:
+    'A normal binary search stops the instant it finds a match. Here we need the boundary, so we do the opposite: even after finding target at mid, we KEEP searching in one direction. For findFirst, on a match we record it as a candidate answer but shrink high = mid - 1, forcing the search leftward to look for an even earlier occurrence. For findLast, on a match we shrink low = mid + 1, forcing the search rightward to look for a later occurrence. Run both searches independently and combine their results into [first, last].',
+  steps: [
+    { num:1, icon:'⬅️', title:'findFirst — Bias Left',  desc:'On a match, save it as the current best answer, then keep searching the LEFT half (high = mid-1) for an even earlier match.' },
+    { num:2, icon:'➡️', title:'findLast — Bias Right',  desc:'On a match, save it as the current best answer, then keep searching the RIGHT half (low = mid+1) for an even later match.' },
+    { num:3, icon:'🔍', title:'Standard Narrowing',      desc:'If nums[mid] < target, search right (low = mid+1). If nums[mid] > target, search left (high = mid-1) — same as regular binary search.' },
+    { num:4, icon:'🏁', title:'Loop Until low > high',   desc:'Each search ends when the window closes. Whatever ans was last saved (or -1 if never) is that search\'s result.' },
+    { num:5, icon:'📦', title:'Combine Results',          desc:'searchRange returns [findFirst result, findLast result] — together forming the target\'s full boundary.' },
+  ],
+},
 };
 
 
@@ -1596,6 +1620,188 @@ export const TEST_CASES = {
         { phase:'push-right-skip', stack:[], result:[1], visitIdx:null, desc:'node(1) has no right child.' },
         { phase:'push-left-skip', stack:[], result:[1], visitIdx:null, desc:'node(1) has no left child.' },
         { phase:'done', stack:[], result:[1], visitIdx:null, desc:'🎉 Stack empty → done! Result: [1].' },
+      ],
+    },
+  ],
+},
+18: {
+  tests: [
+    {
+      label: 'Example 1',
+      caption: 'nums=[3,2,3] → 3',
+      arr: [3, 2, 3],
+      expected: '3',
+      steps: [
+        { i:-1, candidate:0, count:0, vote:null, crowned:false, desc:'Init: candidate=0, count=0.' },
+
+        { i:0, candidate:0, count:0, vote:null, crowned:true,  desc:'i=0, num=3. count==0 → crown 3 as candidate!' },
+        { i:0, candidate:3, count:0, vote:null, crowned:false, desc:'candidate is now 3.' },
+        { i:0, candidate:3, count:1, vote:'match', crowned:false, desc:'num(3) == candidate(3) ✅ → count++ → count=1.' },
+
+        { i:1, candidate:3, count:1, vote:null, crowned:false, desc:'i=1, num=2. count≠0, no crowning needed.' },
+        { i:1, candidate:3, count:0, vote:'oppose', crowned:false, desc:'num(2) ≠ candidate(3) ❌ → count-- → count=0.' },
+
+        { i:2, candidate:3, count:0, vote:null, crowned:true, desc:'i=2, num=3. count==0 → crown 3 as candidate again!' },
+        { i:2, candidate:3, count:0, vote:null, crowned:false, desc:'candidate stays 3 (it was re-crowned with the same value).' },
+        { i:2, candidate:3, count:1, vote:'match', crowned:false, desc:'num(3) == candidate(3) ✅ → count++ → count=1.' },
+
+        { i:-1, candidate:3, count:1, vote:null, crowned:false, phase:'done', desc:'🎉 Scan complete. Surviving candidate: 3. Return 3.' },
+      ],
+    },
+    {
+      label: 'Example 2',
+      caption: 'nums=[2,2,1,1,1,2,2] → 2',
+      arr: [2, 2, 1, 1, 1, 2, 2],
+      expected: '2',
+      steps: [
+        { i:-1, candidate:0, count:0, vote:null, crowned:false, desc:'Init: candidate=0, count=0.' },
+
+        { i:0, candidate:0, count:0, vote:null, crowned:true,  desc:'i=0, num=2. count==0 → crown 2 as candidate!' },
+        { i:0, candidate:2, count:0, vote:null, crowned:false, desc:'candidate is now 2.' },
+        { i:0, candidate:2, count:1, vote:'match', crowned:false, desc:'num(2) == candidate(2) ✅ → count=1.' },
+
+        { i:1, candidate:2, count:1, vote:null, crowned:false, desc:'i=1, num=2. count≠0.' },
+        { i:1, candidate:2, count:2, vote:'match', crowned:false, desc:'num(2) == candidate(2) ✅ → count=2.' },
+
+        { i:2, candidate:2, count:2, vote:null, crowned:false, desc:'i=2, num=1. count≠0.' },
+        { i:2, candidate:2, count:1, vote:'oppose', crowned:false, desc:'num(1) ≠ candidate(2) ❌ → count=1.' },
+
+        { i:3, candidate:2, count:1, vote:null, crowned:false, desc:'i=3, num=1. count≠0.' },
+        { i:3, candidate:2, count:0, vote:'oppose', crowned:false, desc:'num(1) ≠ candidate(2) ❌ → count=0. Candidate 2 just got voted all the way down!' },
+
+        { i:4, candidate:2, count:0, vote:null, crowned:true, desc:'i=4, num=1. count==0 → crown 1 as the NEW candidate! The lead has flipped.' },
+        { i:4, candidate:1, count:0, vote:null, crowned:false, desc:'candidate is now 1.' },
+        { i:4, candidate:1, count:1, vote:'match', crowned:false, desc:'num(1) == candidate(1) ✅ → count=1.' },
+
+        { i:5, candidate:1, count:1, vote:null, crowned:false, desc:'i=5, num=2. count≠0.' },
+        { i:5, candidate:1, count:0, vote:'oppose', crowned:false, desc:'num(2) ≠ candidate(1) ❌ → count=0. Candidate 1 voted out too!' },
+
+        { i:6, candidate:1, count:0, vote:null, crowned:true, desc:'i=6, num=2. count==0 → crown 2 as candidate once more!' },
+        { i:6, candidate:2, count:0, vote:null, crowned:false, desc:'candidate is now 2 again.' },
+        { i:6, candidate:2, count:1, vote:'match', crowned:false, desc:'num(2) == candidate(2) ✅ → count=1.' },
+
+        { i:-1, candidate:2, count:1, vote:null, crowned:false, phase:'done', desc:'🎉 Scan complete. Despite the lead flipping THREE times, the true majority element 2 survives at the very end. Return 2.' },
+      ],
+    },
+    {
+      label: 'Example 3 — single element',
+      caption: 'nums=[7] → 7',
+      arr: [7],
+      expected: '7',
+      steps: [
+        { i:-1, candidate:0, count:0, vote:null, crowned:false, desc:'Init: candidate=0, count=0.' },
+        { i:0, candidate:0, count:0, vote:null, crowned:true, desc:'i=0, num=7. count==0 → crown 7 as candidate!' },
+        { i:0, candidate:7, count:0, vote:null, crowned:false, desc:'candidate is now 7.' },
+        { i:0, candidate:7, count:1, vote:'match', crowned:false, desc:'num(7) == candidate(7) ✅ → count=1.' },
+        { i:-1, candidate:7, count:1, vote:null, crowned:false, phase:'done', desc:'🎉 Scan complete. Single element is trivially the majority. Return 7.' },
+      ],
+    },
+  ],
+},
+19: {
+  tests: [
+    {
+      label: 'Example 1',
+      caption: 'nums=[5,7,7,8,8,10], target=8 → [3,4]',
+      arr: [5, 7, 7, 8, 8, 10],
+      target: 8,
+      expected: '[3,4]',
+      steps: [
+        // ── PASS 1: findFirst ──
+        { pass:'first', low:0, high:5, mid:null, ans:-1, phase:'init', desc:'🔍 Pass 1: findFirst. low=0, high=5, ans=-1.' },
+
+        { pass:'first', low:0, high:5, mid:2, ans:-1, phase:'compare', desc:'mid = 0+(5-0)/2 = 2. nums[2]=7.' },
+        { pass:'first', low:0, high:5, mid:2, ans:-1, phase:'less', desc:'nums[2]=7 < target(8) → search right. low = mid+1 = 3.' },
+        { pass:'first', low:3, high:5, mid:null, ans:-1, phase:'narrow', desc:'low=3, high=5.' },
+
+        { pass:'first', low:3, high:5, mid:4, ans:-1, phase:'compare', desc:'mid = 3+(5-3)/2 = 4. nums[4]=8.' },
+        { pass:'first', low:3, high:5, mid:4, ans:4, phase:'match-left', desc:'nums[4]=8 == target! ✅ Save ans=4, but keep searching LEFT for an earlier 8. high = mid-1 = 3.' },
+        { pass:'first', low:3, high:3, mid:null, ans:4, phase:'narrow', desc:'low=3, high=3.' },
+
+        { pass:'first', low:3, high:3, mid:3, ans:4, phase:'compare', desc:'mid = 3+(3-3)/2 = 3. nums[3]=8.' },
+        { pass:'first', low:3, high:3, mid:3, ans:3, phase:'match-left', desc:'nums[3]=8 == target! ✅ Even earlier match. Save ans=3, keep going left. high = mid-1 = 2.' },
+        { pass:'first', low:3, high:2, mid:null, ans:3, phase:'narrow', desc:'low=3, high=2. low > high → loop ends.' },
+
+        { pass:'first', low:3, high:2, mid:null, ans:3, phase:'pass-done', desc:'✅ findFirst complete. First occurrence of 8 is at index 3.' },
+
+        // ── PASS 2: findLast ──
+        { pass:'last', low:0, high:5, mid:null, ans:-1, phase:'init', desc:'🔍 Pass 2: findLast. Reset low=0, high=5, ans=-1.' },
+
+        { pass:'last', low:0, high:5, mid:2, ans:-1, phase:'compare', desc:'mid = 2. nums[2]=7.' },
+        { pass:'last', low:0, high:5, mid:2, ans:-1, phase:'less', desc:'nums[2]=7 < target(8) → search right. low = mid+1 = 3.' },
+        { pass:'last', low:3, high:5, mid:null, ans:-1, phase:'narrow', desc:'low=3, high=5.' },
+
+        { pass:'last', low:3, high:5, mid:4, ans:-1, phase:'compare', desc:'mid = 3+(5-3)/2 = 4. nums[4]=8.' },
+        { pass:'last', low:3, high:5, mid:4, ans:4, phase:'match-right', desc:'nums[4]=8 == target! ✅ Save ans=4, but keep searching RIGHT for a later 8. low = mid+1 = 5.' },
+        { pass:'last', low:5, high:5, mid:null, ans:4, phase:'narrow', desc:'low=5, high=5.' },
+
+        { pass:'last', low:5, high:5, mid:5, ans:4, phase:'compare', desc:'mid = 5+(5-5)/2 = 5. nums[5]=10.' },
+        { pass:'last', low:5, high:5, mid:5, ans:4, phase:'greater', desc:'nums[5]=10 > target(8) → search left. high = mid-1 = 4.' },
+        { pass:'last', low:5, high:4, mid:null, ans:4, phase:'narrow', desc:'low=5, high=4. low > high → loop ends.' },
+
+        { pass:'last', low:5, high:4, mid:null, ans:4, phase:'pass-done', desc:'✅ findLast complete. Last occurrence of 8 is at index 4.' },
+
+        { pass:'combine', low:null, high:null, mid:null, ans:null, phase:'done', desc:'🎉 Combine: [findFirst, findLast] = [3, 4].' },
+      ],
+    },
+    {
+      label: 'Example 2 — not found',
+      caption: 'nums=[5,7,7,8,8,10], target=6 → [-1,-1]',
+      arr: [5, 7, 7, 8, 8, 10],
+      target: 6,
+      expected: '[-1,-1]',
+      steps: [
+        // ── PASS 1: findFirst ──
+        { pass:'first', low:0, high:5, mid:null, ans:-1, phase:'init', desc:'🔍 Pass 1: findFirst. low=0, high=5, ans=-1.' },
+
+        { pass:'first', low:0, high:5, mid:2, ans:-1, phase:'compare', desc:'mid=2. nums[2]=7.' },
+        { pass:'first', low:0, high:5, mid:2, ans:-1, phase:'greater', desc:'nums[2]=7 > target(6) → search left. high = mid-1 = 1.' },
+        { pass:'first', low:0, high:1, mid:null, ans:-1, phase:'narrow', desc:'low=0, high=1.' },
+
+        { pass:'first', low:0, high:1, mid:0, ans:-1, phase:'compare', desc:'mid = 0+(1-0)/2 = 0. nums[0]=5.' },
+        { pass:'first', low:0, high:1, mid:0, ans:-1, phase:'less', desc:'nums[0]=5 < target(6) → search right. low = mid+1 = 1.' },
+        { pass:'first', low:1, high:1, mid:null, ans:-1, phase:'narrow', desc:'low=1, high=1.' },
+
+        { pass:'first', low:1, high:1, mid:1, ans:-1, phase:'compare', desc:'mid=1. nums[1]=7.' },
+        { pass:'first', low:1, high:1, mid:1, ans:-1, phase:'greater', desc:'nums[1]=7 > target(6) → search left. high = mid-1 = 0.' },
+        { pass:'first', low:1, high:0, mid:null, ans:-1, phase:'narrow', desc:'low=1, high=0. low > high → loop ends. Target 6 never appeared in the array.' },
+
+        { pass:'first', low:1, high:0, mid:null, ans:-1, phase:'pass-done', desc:'✅ findFirst complete. ans stays -1 — 6 was never found.' },
+
+        // ── PASS 2: findLast ──
+        { pass:'last', low:0, high:5, mid:null, ans:-1, phase:'init', desc:'🔍 Pass 2: findLast. Reset low=0, high=5, ans=-1.' },
+
+        { pass:'last', low:0, high:5, mid:2, ans:-1, phase:'compare', desc:'mid=2. nums[2]=7.' },
+        { pass:'last', low:0, high:5, mid:2, ans:-1, phase:'greater', desc:'nums[2]=7 > target(6) → search left. high = mid-1 = 1.' },
+        { pass:'last', low:0, high:1, mid:null, ans:-1, phase:'narrow', desc:'low=0, high=1.' },
+
+        { pass:'last', low:0, high:1, mid:0, ans:-1, phase:'compare', desc:'mid=0. nums[0]=5.' },
+        { pass:'last', low:0, high:1, mid:0, ans:-1, phase:'less', desc:'nums[0]=5 < target(6) → search right. low = mid+1 = 1.' },
+        { pass:'last', low:1, high:1, mid:null, ans:-1, phase:'narrow', desc:'low=1, high=1.' },
+
+        { pass:'last', low:1, high:1, mid:1, ans:-1, phase:'compare', desc:'mid=1. nums[1]=7.' },
+        { pass:'last', low:1, high:1, mid:1, ans:-1, phase:'greater', desc:'nums[1]=7 > target(6) → search left. high = mid-1 = 0.' },
+        { pass:'last', low:1, high:0, mid:null, ans:-1, phase:'narrow', desc:'low=1, high=0. Loop ends.' },
+
+        { pass:'last', low:1, high:0, mid:null, ans:-1, phase:'pass-done', desc:'✅ findLast complete. ans stays -1.' },
+
+        { pass:'combine', low:null, high:null, mid:null, ans:null, phase:'done', desc:'🎉 Combine: [findFirst, findLast] = [-1, -1]. Target not in array.' },
+      ],
+    },
+    {
+      label: 'Example 3 — empty array',
+      caption: 'nums=[], target=0 → [-1,-1]',
+      arr: [],
+      target: 0,
+      expected: '[-1,-1]',
+      steps: [
+        { pass:'first', low:0, high:-1, mid:null, ans:-1, phase:'init', desc:'🔍 Pass 1: findFirst. Array is empty → low=0, high=-1.' },
+        { pass:'first', low:0, high:-1, mid:null, ans:-1, phase:'pass-done', desc:'✅ low > high immediately — loop never runs. findFirst returns -1.' },
+
+        { pass:'last', low:0, high:-1, mid:null, ans:-1, phase:'init', desc:'🔍 Pass 2: findLast. Same situation — low=0, high=-1.' },
+        { pass:'last', low:0, high:-1, mid:null, ans:-1, phase:'pass-done', desc:'✅ Loop never runs. findLast returns -1.' },
+
+        { pass:'combine', low:null, high:null, mid:null, ans:null, phase:'done', desc:'🎉 Combine: [-1, -1]. Nothing to find in an empty array.' },
       ],
     },
   ],

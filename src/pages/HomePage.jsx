@@ -15,7 +15,7 @@ import { Handshake } from 'lucide-react';
 import { Mail } from 'lucide-react'; 
 import { AtSign } from 'lucide-react';
 
-const STATS = [['25+','Problems'],['15','Topics'],['3','Platforms'],['Free','Forever']];
+const STATS = [['50+','Problems'],['15','Topics'],['3','Platforms'],['Free','Forever']];
 const PLATFORMS = [
   { name: 'LeetCode',   color: '#FFA116', Icon: SiLeetcode },
   { name: 'CodeChef',   color: '#5B4638', Icon: SiCodechef },

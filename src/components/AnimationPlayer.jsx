@@ -21,6 +21,10 @@ import ContainerWithMostWaterViz from '../animations/ContainerWithMostWaterViz';
 import ReverseWordsViz from '../animations/ReverseWordsViz';
 import RemoveOccurrencesViz from '../animations/RemoveOccurrencesViz';
 import PreorderTraversalViz from '../animations/PreorderTraversalViz';
+import MajorityElementViz from '../animations/MajorityElementViz';
+import FindFirstLastViz from '../animations/FindFirstLastViz';
+
+
 
 const VIZ_MAP = { 1: TwoSumViz,
                   2: BinarySearchViz, 
@@ -39,6 +43,8 @@ const VIZ_MAP = { 1: TwoSumViz,
                   15: ReverseWordsViz,
                   16: RemoveOccurrencesViz,
                   17: PreorderTraversalViz,
+                  18: MajorityElementViz,
+                  19: FindFirstLastViz,
             };
 
 export default function AnimationPlayer({ problem }) {

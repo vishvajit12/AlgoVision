@@ -865,8 +865,142 @@ public:
         return result`,
 },
   { id:27, lc:48,  title:'Rotate Image',                                   platform:'LeetCode', diff:'Medium', topics:['Array'], animated:false, tc:'O(n²)',    sc:'O(1)', desc:'Rotate an N×N matrix 90 degrees clockwise in-place.' },
-  { id:18, lc:23,  title:'Merge k Sorted Lists',                           platform:'LeetCode', diff:'Hard',   topics:['Heap','Linked List'], animated:false, tc:'O(n log k)', sc:'O(k)', desc:'Merge k sorted linked lists and return one sorted list.' },
-  { id:19, lc:212, title:'Word Search II',                                 platform:'LeetCode', diff:'Hard',   topics:['Trie','Backtracking'], animated:false, tc:'O(m·n·4^L)', sc:'O(L)', desc:'Find all words from a dictionary in a 2D board using a Trie.' },
+{
+  id: 18,           // ← use your next unused id
+  lc: 169,
+  title: 'Majority Element',
+  platform: 'LeetCode',
+  diff: 'Easy',
+  topics: ['Array', 'Hash Map', 'Sorting', 'Divide and Conquer'],
+  animated: true,
+  desc: 'Given an array nums of size n, return the majority element — the element that appears more than ⌊n/2⌋ times. The majority element is guaranteed to exist.',
+  tc: 'O(n)',
+  sc: 'O(1)',
+  cpp: `class Solution {
+public:
+    int majorityElement(vector<int>& nums) {
+        int candidate = 0;
+        int count = 0;
+
+        for (int num : nums) {
+            if (count == 0) {
+                candidate = num;
+            }
+            if (num == candidate) {
+                count++;
+            } else {
+                count--;
+            }
+        }
+        return candidate;
+    }
+};`,
+  py: `class Solution:
+    def majorityElement(self, nums: List[int]) -> int:
+        candidate = 0
+        count = 0
+
+        for num in nums:
+            if count == 0:
+                candidate = num
+            if num == candidate:
+                count += 1
+            else:
+                count -= 1
+
+        return candidate`,
+},
+ {
+  id: 19,
+  lc: 34,
+  title: 'Find First and Last Position of Element in Sorted Array',
+  platform: 'LeetCode',
+  diff: 'Medium',
+  topics: ['Array', 'Binary Search'],
+  animated: true,
+  desc: 'Given an array of integers nums sorted in non-decreasing order, find the starting and ending position of a given target value. Return [-1,-1] if target is not found. Must run in O(log n) time.',
+  tc: 'O(log n)',
+  sc: 'O(1)',
+  cpp: `class Solution {
+public:
+    int findFirst(vector<int>& nums, int target) {
+        int low = 0, high = nums.size() - 1;
+        int ans = -1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (nums[mid] == target) {
+                ans = mid;
+                high = mid - 1;   // move left
+            } else if (nums[mid] < target) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+        return ans;
+    }
+
+    int findLast(vector<int>& nums, int target) {
+        int low = 0, high = nums.size() - 1;
+        int ans = -1;
+
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+
+            if (nums[mid] == target) {
+                ans = mid;
+                low = mid + 1;   // move right
+            } else if (nums[mid] < target) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+        return ans;
+    }
+
+    vector<int> searchRange(vector<int>& nums, int target) {
+        int first = findFirst(nums, target);
+        int last = findLast(nums, target);
+        return {first, last};
+    }
+};`,
+  py: `class Solution:
+    def findFirst(self, nums, target):
+        low, high = 0, len(nums) - 1
+        ans = -1
+        while low <= high:
+            mid = low + (high - low) // 2
+            if nums[mid] == target:
+                ans = mid
+                high = mid - 1   # move left
+            elif nums[mid] < target:
+                low = mid + 1
+            else:
+                high = mid - 1
+        return ans
+
+    def findLast(self, nums, target):
+        low, high = 0, len(nums) - 1
+        ans = -1
+        while low <= high:
+            mid = low + (high - low) // 2
+            if nums[mid] == target:
+                ans = mid
+                low = mid + 1   # move right
+            elif nums[mid] < target:
+                low = mid + 1
+            else:
+                high = mid - 1
+        return ans
+
+    def searchRange(self, nums: List[int], target: int) -> List[int]:
+        first = self.findFirst(nums, target)
+        last = self.findLast(nums, target)
+        return [first, last]`,
+},
   { id:20, lc:56,  title:'Merge Intervals',                                platform:'LeetCode', diff:'Medium', topics:['Array','Greedy'], animated:false, tc:'O(n log n)', sc:'O(n)', desc:'Merge all overlapping intervals into one.' },
   // CodeChef
   { id:21, cc:'PRIMES',   title:'Prime Generator',       platform:'CodeChef', diff:'Easy',   topics:['Math'], animated:false, tc:'O(n log log n)', sc:'O(n)', desc:'Generate all prime numbers between M and N using Sieve of Eratosthenes.' },
@@ -876,8 +1010,39 @@ public:
   { id:24, cf:'4A',   title:'Watermelon',             platform:'Codeforces', diff:'Easy',   topics:['Math'], animated:false, tc:'O(1)', sc:'O(1)', desc:'Divide a watermelon of weight W into two even non-zero parts.' },
   { id:25, cf:'1A',   title:'Theatre Square',         platform:'Codeforces', diff:'Easy',   topics:['Math'], animated:false, tc:'O(1)', sc:'O(1)', desc:'Find minimum flagstones to pave a rectangular theatre square.' },
   { id:26, cf:'266B', title:'Queue at the School',    platform:'Codeforces', diff:'Easy',   topics:['Strings','Simulation'], animated:false, tc:'O(n·t)', sc:'O(n)', desc:'Simulate a queue where boys and girls swap positions each second.' },
- 
+ // ── LeetCode ──────────────────────────────────────────────
+  { id:28, lc:53,  title:'Maximum Subarray',                platform:'LeetCode', diff:'Medium', topics:['Array','Divide and Conquer','Dynamic Programming'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Find the contiguous subarray with the largest sum and return that sum.' },
+  { id:29, lc:70,  title:'Climbing Stairs',                 platform:'LeetCode', diff:'Easy',   topics:['Math','Dynamic Programming','Memoization'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Count the distinct ways to climb n stairs taking 1 or 2 steps at a time.' },
+  { id:30, lc:155, title:'Min Stack',                       platform:'LeetCode', diff:'Medium', topics:['Stack','Design'], animated:false, tc:'O(1) per op', sc:'O(n)', desc:'Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.' },
+  { id:31, lc:206, title:'Reverse Linked List',              platform:'LeetCode', diff:'Easy',   topics:['Linked List','Recursion'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Reverse a singly linked list and return the new head.' },
+  { id:32, lc:226, title:'Invert Binary Tree',                platform:'LeetCode', diff:'Easy',   topics:['Tree','Binary Tree','Depth-First Search','Breadth-First Search'], animated:false, tc:'O(n)', sc:'O(n)', desc:'Given the root of a binary tree, invert the tree and return its root.' },
+  { id:33, lc:733, title:'Flood Fill',                        platform:'LeetCode', diff:'Easy',   topics:['Array','Depth-First Search','Breadth-First Search','Matrix'], animated:false, tc:'O(n·m)', sc:'O(n·m)', desc:'Perform a flood fill on an image starting from a given pixel, replacing connected same-colored pixels with a new color.' },
+  { id:34, lc:242, title:'Valid Anagram',                     platform:'LeetCode', diff:'Easy',   topics:['Hash Map','String','Sorting'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Given two strings s and t, determine if t is an anagram of s.' },
+  { id:35, lc:125, title:'Valid Palindrome',                  platform:'LeetCode', diff:'Easy',   topics:['Two Pointers','String'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Given a string, determine if it is a palindrome after converting to lowercase and removing non-alphanumeric characters.' },
+  { id:36, lc:283, title:'Move Zeroes',                       platform:'LeetCode', diff:'Easy',   topics:['Array','Two Pointers'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Move all zeroes in an array to the end while maintaining the relative order of the non-zero elements, in-place.' },
+  { id:37, lc:448, title:'Find All Numbers Disappeared in an Array', platform:'LeetCode', diff:'Easy', topics:['Array','Hash Map'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Given an array of n integers where elements range from 1 to n, find all integers in that range that do not appear in the array.' },
 
+  // ── CodeChef ──────────────────────────────────────────────
+  { id:38, cc:'FLOW001',   title:'Add Two Numbers',      platform:'CodeChef', diff:'Easy', topics:['Math','Implementation'], animated:false, tc:'O(1)', sc:'O(1)', desc:'Read two integers and print their sum.' },
+  { id:39, cc:'FLOW006',   title:'Enormous Input Test',  platform:'CodeChef', diff:'Easy', topics:['Implementation','Fast I/O'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Given a huge list of integers and a number k, count how many of them are divisible by k — tests fast input reading.' },
+  { id:40, cc:'FLOW016',   title:'Xtreme Prime',          platform:'CodeChef', diff:'Easy', topics:['Math','Number Theory'], animated:false, tc:'O(√n)', sc:'O(1)', desc:'Given a number, determine whether it is prime.' },
+  { id:41, cc:'FCTRL2',    title:'Small factorials',      platform:'CodeChef', diff:'Easy', topics:['Math','Big Integer'], animated:false, tc:'O(n²)', sc:'O(n)', desc:'Compute the factorial of a given number up to 100, requiring big-integer multiplication.' },
+  { id:42, cc:'HS08TEST',  title:'CodeChef Beta Test',    platform:'CodeChef', diff:'Easy', topics:['Implementation'], animated:false, tc:'O(1)', sc:'O(1)', desc:'A simple test problem — read a number and print the greeting message the required number of times.' },
+  // ── LeetCode ──────────────────────────────────────────────
+  { id:43, lc:75,   title:'Sort Colors',                         platform:'LeetCode', diff:'Medium', topics:['Array','Two Pointers','Sorting'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Sort an array containing only 0s, 1s, and 2s in-place so equal elements are adjacent, without using a library sort.' },
+  { id:44, lc:238,  title:'Product of Array Except Self',          platform:'LeetCode', diff:'Medium', topics:['Array','Prefix Sum'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Return an array where each element is the product of all other elements in the input array, without using division.' },
+  { id:45, lc:56,   title:'Merge Intervals',                       platform:'LeetCode', diff:'Medium', topics:['Array','Sorting'], animated:false, tc:'O(n log n)', sc:'O(n)', desc:'Given an array of intervals, merge all overlapping intervals and return the resulting non-overlapping set.' },
+  { id:46, lc:33,   title:'Search in Rotated Sorted Array',          platform:'LeetCode', diff:'Medium', topics:['Array','Binary Search'], animated:false, tc:'O(log n)', sc:'O(1)', desc:'Search for a target value in a rotated sorted array and return its index, or -1 if not found.' },
+  { id:47, lc:15,   title:'3Sum',                                    platform:'LeetCode', diff:'Medium', topics:['Array','Two Pointers','Sorting'], animated:false, tc:'O(n²)', sc:'O(1)', desc:'Find all unique triplets in the array which give the sum of zero.' },
+  { id:48, lc:198,  title:'House Robber',                            platform:'LeetCode', diff:'Medium', topics:['Array','Dynamic Programming'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Given houses arranged in a line with money in each, find the maximum amount robbable without robbing two adjacent houses.' },
+  { id:49, lc:207,  title:'Course Schedule',                         platform:'LeetCode', diff:'Medium', topics:['Graph','Topological Sort','Depth-First Search','Breadth-First Search'], animated:false, tc:'O(V+E)', sc:'O(V+E)', desc:'Given prerequisite pairs for courses, determine if it is possible to finish all courses (detect a cycle in the dependency graph).' },
+  { id:50, lc:200,  title:'Number of Islands',                       platform:'LeetCode', diff:'Medium', topics:['Array','Depth-First Search','Breadth-First Search','Matrix'], animated:false, tc:'O(n·m)', sc:'O(n·m)', desc:'Given a 2D grid of \'1\'s (land) and \'0\'s (water), count the number of islands formed by connected land cells.' },
+  { id:51, lc:236,  title:'Lowest Common Ancestor of a Binary Tree', platform:'LeetCode', diff:'Medium', topics:['Tree','Binary Tree','Depth-First Search'], animated:false, tc:'O(n)', sc:'O(n)', desc:'Given a binary tree, find the lowest common ancestor of two given nodes in the tree.' },
+  { id:52, lc:5,    title:'Longest Palindromic Substring',            platform:'LeetCode', diff:'Medium', topics:['String','Dynamic Programming'], animated:false, tc:'O(n²)', sc:'O(1)', desc:'Given a string, return the longest substring that is a palindrome.' },
+  { id:53, lc:322,  title:'Coin Change',                              platform:'LeetCode', diff:'Medium', topics:['Array','Dynamic Programming','Breadth-First Search'], animated:false, tc:'O(n·amount)', sc:'O(amount)', desc:'Given coin denominations and a target amount, find the fewest number of coins needed to make up that amount.' },
+  { id:54, lc:46,   title:'Permutations',                              platform:'LeetCode', diff:'Medium', topics:['Array','Backtracking'], animated:false, tc:'O(n·n!)', sc:'O(n!)', desc:'Given an array of distinct integers, return all possible permutations.' },
+  { id:55, lc:78,   title:'Subsets',                                   platform:'LeetCode', diff:'Medium', topics:['Array','Backtracking','Bit Manipulation'], animated:false, tc:'O(n·2ⁿ)', sc:'O(2ⁿ)', desc:'Given an array of unique integers, return all possible subsets (the power set).' },
+  { id:56, lc:98,   title:'Validate Binary Search Tree',                 platform:'LeetCode', diff:'Medium', topics:['Tree','Binary Search Tree','Depth-First Search'], animated:false, tc:'O(n)', sc:'O(n)', desc:'Given the root of a binary tree, determine if it is a valid binary search tree.' },
 ];
 
 export const getProblemNum = (p) => {
