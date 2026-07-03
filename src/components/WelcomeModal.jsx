@@ -71,7 +71,7 @@ export default function WelcomeModal({ onClose }) {
                 onChange={e => setName(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleNext()}
                 placeholder="e.g. sanket, tanaya, spidy, luffy …"
-                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 text-white text-sm outline-none focus:border-coral transition-colors placeholder:text-gray-600 mb-5"
+                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 text-black text-sm outline-none focus:border-coral transition-colors placeholder:text-gray-600 mb-5"
               />
               <button
                 onClick={handleNext}
