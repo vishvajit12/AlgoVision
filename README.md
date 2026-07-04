@@ -1,4 +1,4 @@
-# AnimeCode 🤖
+# AlgoVision 🤖
 
 > **Watch algorithms come alive** — Visual step-by-step explanations for LeetCode, CodeChef & Codeforces problems.
 
