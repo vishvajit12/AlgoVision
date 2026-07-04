@@ -26,7 +26,7 @@ import FindFirstLastViz from '../animations/FindFirstLastViz';
 import RemoveDuplicateLettersViz from '../animations/RemoveDuplicateLettersViz';
 import CloneGraphViz from '../animations/CloneGraphViz';
 import SameTreeViz from '../animations/SameTreeViz';
-import SqrtViz from '../animations/SqrtViz';
+import SqrtViz from '../animations/SqrtVizViz';
 
 
 const VIZ_MAP = { 1: TwoSumViz,
