@@ -1000,12 +1000,224 @@ public:
         first = self.findFirst(nums, target)
         last = self.findLast(nums, target)
         return [first, last]`,
+},{
+  id: 20,
+  lc: 316,
+  title: 'Remove Duplicate Letters',
+  platform: 'LeetCode',
+  diff: 'Medium',
+  topics: ['String', 'Stack', 'Greedy', 'Monotonic Stack'],
+  animated: true,
+  desc: 'Given a string s, remove duplicate letters so every letter appears exactly once. The result must be the smallest possible in lexicographical order among all valid results.',
+  tc: 'O(n)',
+  sc: 'O(1)  // at most 26 letters',
+  cpp: `class Solution {
+public:
+    string removeDuplicateLetters(string s) {
+        vector<int> lastIndex(26, 0);
+        for (int i = 0; i < s.size(); i++) lastIndex[s[i] - 'a'] = i;
+
+        vector<bool> inStack(26, false);
+        string st;
+
+        for (int i = 0; i < s.size(); i++) {
+            char c = s[i];
+            if (inStack[c - 'a']) continue;   // already placed, skip entirely
+
+            while (!st.empty() && st.back() > c && lastIndex[st.back() - 'a'] > i) {
+                inStack[st.back() - 'a'] = false;
+                st.pop_back();
+            }
+
+            st.push_back(c);
+            inStack[c - 'a'] = true;
+        }
+
+        return st;
+    }
+};`,
+  py: `class Solution:
+    def removeDuplicateLetters(self, s: str) -> str:
+        last_index = {c: i for i, c in enumerate(s)}
+        in_stack = set()
+        stack = []
+
+        for i, c in enumerate(s):
+            if c in in_stack:
+                continue   # already placed, skip entirely
+
+            while stack and stack[-1] > c and last_index[stack[-1]] > i:
+                in_stack.remove(stack.pop())
+
+            stack.append(c)
+            in_stack.add(c)
+
+        return ''.join(stack)`,
+},{
+  id: 21,
+  lc: 133,
+  title: 'Clone Graph',
+  platform: 'LeetCode',
+  diff: 'Medium',
+  topics: ['Hash Map', 'Depth-First Search', 'Breadth-First Search', 'Graph'],
+  animated: true,
+  desc: 'Given a reference node in a connected undirected graph, return a deep copy (clone) of the graph. Each node has a value and a list of neighbor references.',
+  tc: 'O(V + E)',
+  sc: 'O(V)',
+  cpp: `/*
+class Node {
+public:
+    int val;
+    vector<Node*> neighbors;
+    Node() { val = 0; neighbors = vector<Node*>(); }
+    Node(int _val) { val = _val; neighbors = vector<Node*>(); }
+    Node(int _val, vector<Node*> _neighbors) { val = _val; neighbors = _neighbors; }
+};
+*/
+class Solution {
+public:
+    Node* cloneGraph(Node* node) {
+        if (!node) return nullptr;
+        unordered_map<Node*, Node*> visited;
+        return clone(node, visited);
+    }
+
+    Node* clone(Node* node, unordered_map<Node*, Node*>& visited) {
+        if (visited.count(node)) return visited[node];
+
+        Node* copy = new Node(node->val);
+        visited[node] = copy;
+
+        for (Node* neighbor : node->neighbors) {
+            copy->neighbors.push_back(clone(neighbor, visited));
+        }
+
+        return copy;
+    }
+};`,
+  py: `class Solution:
+    def cloneGraph(self, node: Optional['Node']) -> Optional['Node']:
+        if not node:
+            return None
+
+        visited = {}
+
+        def clone(n):
+            if n in visited:
+                return visited[n]
+
+            copy = Node(n.val)
+            visited[n] = copy
+
+            for neighbor in n.neighbors:
+                copy.neighbors.append(clone(neighbor))
+
+            return copy
+
+        return clone(node)`,
 },
-  { id:20, lc:56,  title:'Merge Intervals',                                platform:'LeetCode', diff:'Medium', topics:['Array','Greedy'], animated:false, tc:'O(n log n)', sc:'O(n)', desc:'Merge all overlapping intervals into one.' },
+{
+  id: 22,
+  lc: 100,
+  title: 'Same Tree',
+  platform: 'LeetCode',
+  diff: 'Easy',
+  topics: ['Tree', 'Depth-First Search', 'Breadth-First Search', 'Binary Tree'],
+  animated: true,
+  desc: 'Given the roots of two binary trees p and q, check if they are the same — structurally identical with matching node values.',
+  tc: 'O(min(n, m))',
+  sc: 'O(min(n, m))  // recursion depth',
+  cpp: `/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    bool isSameTree(TreeNode* p, TreeNode* q) {
+        if (!p && !q) return true;          // both empty — match
+        if (!p || !q) return false;         // one empty, one not — mismatch
+        if (p->val != q->val) return false; // values differ — mismatch
+
+        return isSameTree(p->left, q->left) && isSameTree(p->right, q->right);
+    }
+};`,
+  py: `class Solution:
+    def isSameTree(self, p: Optional[TreeNode], q: Optional[TreeNode]) -> bool:
+        if not p and not q:
+            return True
+        if not p or not q:
+            return False
+        if p.val != q.val:
+            return False
+
+        return self.isSameTree(p.left, q.left) and self.isSameTree(p.right, q.right)`,
+},{
+  id: 23,
+  lc: 69,
+  title: 'Sqrt(x)',
+  platform: 'LeetCode',
+  diff: 'Easy',
+  topics: ['Math', 'Binary Search'],
+  animated: true,
+  desc: 'Given a non-negative integer x, return the square root of x rounded down to the nearest integer. You must not use any built-in exponent function or operator.',
+  tc: 'O(log x)',
+  sc: 'O(1)',
+  cpp: `class Solution {
+public:
+    int mySqrt(int x) {
+        if (x == 0 || x == 1) return x;
+
+        long long low = 1, high = x, ans = 0;
+
+        while (low <= high) {
+            long long mid = (low + high) / 2;
+
+            if (mid * mid == x) {
+                return mid;
+            }
+            else if (mid * mid < x) {
+                ans = mid;        // important: store this as a possible answer
+                low = mid + 1;
+            }
+            else {
+                high = mid - 1;
+            }
+        }
+        return ans;
+    }
+};`,
+  py: `class Solution:
+    def mySqrt(self, x: int) -> int:
+        if x == 0 or x == 1:
+            return x
+
+        low, high, ans = 1, x, 0
+
+        while low <= high:
+            mid = (low + high) // 2
+
+            if mid * mid == x:
+                return mid
+            elif mid * mid < x:
+                ans = mid          # important: store this as a possible answer
+                low = mid + 1
+            else:
+                high = mid - 1
+
+        return ans`,
+},
+  { id:57, lc:56,  title:'Merge Intervals',                                platform:'LeetCode', diff:'Medium', topics:['Array','Greedy'], animated:false, tc:'O(n log n)', sc:'O(n)', desc:'Merge all overlapping intervals into one.' },
   // CodeChef
-  { id:21, cc:'PRIMES',   title:'Prime Generator',       platform:'CodeChef', diff:'Easy',   topics:['Math'], animated:false, tc:'O(n log log n)', sc:'O(n)', desc:'Generate all prime numbers between M and N using Sieve of Eratosthenes.' },
-  { id:22, cc:'FLOW007',  title:'Lucky Seven',           platform:'CodeChef', diff:'Easy',   topics:['Strings'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Check if a number contains digit 7 or is divisible by 7.' },
-  { id:23, cc:'FCTRL',    title:'Factorial!',            platform:'CodeChef', diff:'Easy',   topics:['Math'], animated:false, tc:'O(n)', sc:'O(n)', desc:'Compute factorials of large numbers up to 100.' },
+  { id:58, cc:'PRIMES',   title:'Prime Generator',       platform:'CodeChef', diff:'Easy',   topics:['Math'], animated:false, tc:'O(n log log n)', sc:'O(n)', desc:'Generate all prime numbers between M and N using Sieve of Eratosthenes.' },
+  { id:59, cc:'FLOW007',  title:'Lucky Seven',           platform:'CodeChef', diff:'Easy',   topics:['Strings'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Check if a number contains digit 7 or is divisible by 7.' },
+  { id:60, cc:'FCTRL',    title:'Factorial!',            platform:'CodeChef', diff:'Easy',   topics:['Math'], animated:false, tc:'O(n)', sc:'O(n)', desc:'Compute factorials of large numbers up to 100.' },
   // Codeforces
   { id:24, cf:'4A',   title:'Watermelon',             platform:'Codeforces', diff:'Easy',   topics:['Math'], animated:false, tc:'O(1)', sc:'O(1)', desc:'Divide a watermelon of weight W into two even non-zero parts.' },
   { id:25, cf:'1A',   title:'Theatre Square',         platform:'Codeforces', diff:'Easy',   topics:['Math'], animated:false, tc:'O(1)', sc:'O(1)', desc:'Find minimum flagstones to pave a rectangular theatre square.' },

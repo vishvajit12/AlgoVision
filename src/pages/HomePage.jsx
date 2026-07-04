@@ -15,7 +15,7 @@ import { Handshake } from 'lucide-react';
 import { Mail } from 'lucide-react'; 
 import { AtSign } from 'lucide-react';
 
-const STATS = [['50+','Problems'],['15','Topics'],['3','Platforms'],['Free','Forever']];
+const STATS = [['60+','Problems'],['15','Topics'],['3','Platforms'],['Free','Forever']];
 const PLATFORMS = [
   { name: 'LeetCode',   color: '#FFA116', Icon: SiLeetcode },
   { name: 'CodeChef',   color: '#5B4638', Icon: SiCodechef },
@@ -136,7 +136,7 @@ export default function HomePage({ user }) {
             </h1>
 
             <p className="text-white/75 leading-relaxed mb-8 text-base max-w-xs">
-              AnimeCode visualises every algorithm step&nbsp;by&nbsp;step.
+              AlgoVision visualises every algorithm step&nbsp;by&nbsp;step.
               Watch, pause, rewind and actually understand.
             </p>
 
@@ -234,7 +234,7 @@ export default function HomePage({ user }) {
       <section className="py-14 px-8 bg-[#E0E0C0]">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-ink font-black text-2xl mb-1 tracking-tight">
-            How AnimeCode works
+            How AlgoVision works
           </h2>
           <p className="text-gray-400 text-sm mb-10">Three steps to understanding any algorithm.</p>
 
@@ -365,7 +365,7 @@ export default function HomePage({ user }) {
           >
             <div>
               <span style={{ color:'#F05D58' }}>$</span>
-              <span className="text-gray-400"> animecode generate </span>
+              <span className="text-gray-400"> algovision generate </span>
               <span style={{ color:'rgba(52,134,129,.8)' }}>
                 "find two numbers summing to target..."
               </span>
@@ -387,7 +387,7 @@ export default function HomePage({ user }) {
           <div className="flex items-start gap-1">
             <div className="w-7 h-7 rounded-lg bg-coral flex items-center justify-center text-white font-black text-sm">A</div>
             <span className="text-white font-black text-lg tracking-tight">
-          Anime<span className="opacity-60">Code</span>
+          Algo<span className="opacity-60">Vision</span>
         </span>
           </div>
           <p className="text-gray-400 text-xs text-center font-['Poppins']">

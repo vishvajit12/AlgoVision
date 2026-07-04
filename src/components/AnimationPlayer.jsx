@@ -23,7 +23,10 @@ import RemoveOccurrencesViz from '../animations/RemoveOccurrencesViz';
 import PreorderTraversalViz from '../animations/PreorderTraversalViz';
 import MajorityElementViz from '../animations/MajorityElementViz';
 import FindFirstLastViz from '../animations/FindFirstLastViz';
-
+import RemoveDuplicateLettersViz from '../animations/RemoveDuplicateLettersViz';
+import CloneGraphViz from '../animations/CloneGraphViz';
+import SameTreeViz from '../animations/SameTreeViz';
+import SqrtViz from '../animations/SqrtViz';
 
 
 const VIZ_MAP = { 1: TwoSumViz,
@@ -45,6 +48,10 @@ const VIZ_MAP = { 1: TwoSumViz,
                   17: PreorderTraversalViz,
                   18: MajorityElementViz,
                   19: FindFirstLastViz,
+                  20: RemoveDuplicateLettersViz,
+                  21: CloneGraphViz,
+                  22: SameTreeViz,
+                  23: SqrtViz, 
             };
 
 export default function AnimationPlayer({ problem }) {
@@ -112,7 +119,7 @@ export default function AnimationPlayer({ problem }) {
           <div key={c} className="w-3 h-3 rounded-full" style={{ background: c }} />
         ))}
         <span className="text-xs font-mono ml-2" style={{ color:'#4a4a48' }}>
-          animeCode · visualizer
+          AlgoVision · visualizer
         </span>
       <button
   onClick={toggleFullscreen}

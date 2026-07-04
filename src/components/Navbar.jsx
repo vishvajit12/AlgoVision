@@ -21,7 +21,7 @@ export default function Navbar({ user }) {
           A
         </div>
         <span className="text-white font-black text-lg tracking-tight">
-          Anime<span className="opacity-60">Code</span>
+          Algo<span className="opacity-60">Vision</span>
         </span>
       </div>
 

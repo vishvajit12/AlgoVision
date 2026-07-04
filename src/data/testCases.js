@@ -237,6 +237,54 @@ export const SOLUTION_STEPS = {
     { num:5, icon:'📦', title:'Combine Results',          desc:'searchRange returns [findFirst result, findLast result] — together forming the target\'s full boundary.' },
   ],
 },
+20: {
+  title: 'Monotonic Stack + Last-Occurrence Lookahead',
+  approach:
+    'First, record the LAST index at which every letter appears — this tells us "does this letter come back later?" Then build a stack greedily. For each character: if it\'s already somewhere in the stack, skip it entirely (we only ever want ONE of each letter). Otherwise, before pushing, keep popping the stack\'s top WHILE the top is alphabetically larger than the current character AND that top letter reappears later in the string (checked via the last-occurrence table). Popping is safe only because we know we can pick that letter back up later — if it never reappears, we must keep it even if it\'s "out of order." Finally push the current character.',
+  steps: [
+    { num:1, icon:'📇', title:'Record Last Occurrence',  desc:'Scan the whole string once, recording the last index each letter appears at.' },
+    { num:2, icon:'⏭️', title:'Skip If Already Placed',   desc:'If the current character is already in the stack, skip it — we never want two of the same letter.' },
+    { num:3, icon:'🔍', title:'Check: Can We Pop?',        desc:'While the stack top is alphabetically bigger AND reappears later (lastIndex[top] > i), it\'s safe to pop.' },
+    { num:4, icon:'✂️', title:'Pop the Bigger, Later Letter', desc:'Popping now and re-adding it later gives a smaller (better) result — remove it from the "in stack" tracking too.' },
+    { num:5, icon:'📥', title:'Push Current Character',    desc:'Once no more valid pops are possible, push the current character and mark it as placed.' },
+  ],
+},
+21: {
+  title: 'DFS + Hash Map to Handle Cycles',
+  approach:
+    'The graph is undirected and connected, meaning it almost certainly contains cycles — a naive recursive copy would loop forever bouncing between neighbors. The fix: keep a hash map from ORIGINAL node → its CLONE. Before doing any work, check if the current node is already in the map — if so, we\'ve been here before, so just return the existing clone instead of recursing again. Otherwise, create the clone, register it in the map IMMEDIATELY (before recursing into neighbors — this is what breaks the cycle), then recursively clone each neighbor and attach it to the new node\'s neighbor list.',
+  steps: [
+    { num:1, icon:'🔍', title:'Check the Map First',   desc:'If this original node already has a clone in the map, return that clone immediately — do not create a duplicate.' },
+    { num:2, icon:'🆕', title:'Create & Register',       desc:'Otherwise, create a new node with the same value, and IMMEDIATELY store it in the map before touching neighbors — this is the cycle-breaker.' },
+    { num:3, icon:'🔄', title:'Recurse on Neighbors',     desc:'For each neighbor in the original node\'s list, recursively clone it (which may itself hit the map-check and return instantly).' },
+    { num:4, icon:'🔗', title:'Link the Clone',            desc:'Attach each recursively-cloned neighbor to the current copy\'s neighbor list.' },
+    { num:5, icon:'🏁', title:'Return the Clone',          desc:'Once all neighbors are linked, return this node\'s copy back up the call stack.' },
+  ],
+},
+22: {
+  title: 'Recursive DFS — Compare Node by Node',
+  approach:
+    'Compare two trees simultaneously, node by node, using recursion. At each pair of nodes: if BOTH are null, they match at this position (two matching empty branches) — return true. If only ONE is null, the trees have different shapes here — return false immediately. If both exist but their values differ — return false immediately. Otherwise, values match at this pair, so recursively check BOTH the left subtrees and the right subtrees — the trees are only the same if both of those recursive checks also return true.',
+  steps: [
+    { num:1, icon:'🟰', title:'Both Null → Match',      desc:'If both current nodes are null, this branch matches (two empty ends) — return true.' },
+    { num:2, icon:'❌', title:'One Null → Mismatch',    desc:'If only one of the two nodes is null, the shapes differ here — return false immediately.' },
+    { num:3, icon:'🔍', title:'Compare Values',          desc:'If both nodes exist, check p->val == q->val. Different values → return false immediately.' },
+    { num:4, icon:'⬅️', title:'Recurse Left',            desc:'Values matched — recursively check isSameTree(p->left, q->left).' },
+    { num:5, icon:'➡️', title:'Recurse Right & Combine', desc:'Recursively check isSameTree(p->right, q->right). Both left AND right must be true for this pair to be "same".' },
+  ],
+},
+23: {
+  title: 'Binary Search on the Answer',
+  approach:
+    'Instead of searching an array, binary search over the RANGE OF POSSIBLE ANSWERS (1 to x) for the largest integer whose square doesn\'t exceed x. At each mid, compute mid*mid. If it exactly equals x, we found a perfect square root — return immediately. If mid*mid is LESS than x, mid is a valid (but possibly not optimal) answer — save it in ans, then search the right half for something bigger. If mid*mid is GREATER than x, mid is too big — search the left half. Since x might not have an exact integer square root, ans holds the best (largest valid) candidate found so far, which becomes the final floor(√x) once the search window closes.',
+  steps: [
+    { num:1, icon:'🎯', title:'Handle 0 and 1',        desc:'Special case: sqrt(0)=0 and sqrt(1)=1 — return immediately, no search needed.' },
+    { num:2, icon:'📐', title:'Search Range [1, x]',    desc:'low=1, high=x, ans=0. The true answer must be somewhere in this range.' },
+    { num:3, icon:'✖️', title:'Compute mid × mid',       desc:'At each step, compute mid*mid and compare it against x.' },
+    { num:4, icon:'💾', title:'Save & Search Right',     desc:'If mid*mid < x, mid COULD be the answer — save it in ans, then search right (low=mid+1) for something even bigger.' },
+    { num:5, icon:'🏁', title:'Return Saved ans',        desc:'If mid*mid > x, search left. When the loop ends, ans holds the largest mid whose square never exceeded x — that\'s floor(√x).' },
+  ],
+},
 };
 
 
@@ -1802,6 +1850,363 @@ export const TEST_CASES = {
         { pass:'last', low:0, high:-1, mid:null, ans:-1, phase:'pass-done', desc:'✅ Loop never runs. findLast returns -1.' },
 
         { pass:'combine', low:null, high:null, mid:null, ans:null, phase:'done', desc:'🎉 Combine: [-1, -1]. Nothing to find in an empty array.' },
+      ],
+    },
+  ],
+},
+20: {
+  tests: [
+    {
+      label: 'Example 1',
+      caption: 's="bcabc" → "abc"',
+      arr: ['b','c','a','b','c'],
+      expected: '"abc"',
+      steps: [
+        { i:-1, char:null, stack:[], lastIndex:{a:2,b:3,c:4}, phase:'init', popChar:null, desc:'Precompute last occurrence: a→2, b→3, c→4.' },
+
+        { i:0, char:'b', stack:[], phase:'check', popChar:null, desc:'i=0, char=\'b\'. Not in stack.' },
+        { i:0, char:'b', stack:['b'], phase:'push', popChar:null, desc:'Stack is empty, nothing to compare. Push \'b\'. stack=[b].' },
+
+        { i:1, char:'c', stack:['b'], phase:'check', popChar:null, desc:'i=1, char=\'c\'. Not in stack.' },
+        { i:1, char:'c', stack:['b'], phase:'compare', popChar:null, desc:'Top \'b\' > \'c\'? ❌ No → no pop needed.' },
+        { i:1, char:'c', stack:['b','c'], phase:'push', popChar:null, desc:'Push \'c\'. stack=[b,c].' },
+
+        { i:2, char:'a', stack:['b','c'], phase:'check', popChar:null, desc:'i=2, char=\'a\'. Not in stack.' },
+        { i:2, char:'a', stack:['b','c'], phase:'compare', popChar:'c', desc:'Top \'c\' > \'a\'? ✅ Yes. Does c reappear later? lastIndex[c]=4 > i(2)? ✅ Yes → safe to pop!' },
+        { i:2, char:'a', stack:['b'], phase:'pop', popChar:'c', desc:'Pop \'c\'. stack=[b]. (c will come back at index 4.)' },
+        { i:2, char:'a', stack:['b'], phase:'compare', popChar:'b', desc:'Top \'b\' > \'a\'? ✅ Yes. Does b reappear later? lastIndex[b]=3 > i(2)? ✅ Yes → safe to pop!' },
+        { i:2, char:'a', stack:[], phase:'pop', popChar:'b', desc:'Pop \'b\'. stack=[]. (b will come back at index 3.)' },
+        { i:2, char:'a', stack:[], phase:'compare', popChar:null, desc:'Stack is now empty — nothing left to compare.' },
+        { i:2, char:'a', stack:['a'], phase:'push', popChar:null, desc:'Push \'a\'. stack=[a].' },
+
+        { i:3, char:'b', stack:['a'], phase:'check', popChar:null, desc:'i=3, char=\'b\'. Not in stack.' },
+        { i:3, char:'b', stack:['a'], phase:'compare', popChar:null, desc:'Top \'a\' > \'b\'? ❌ No → no pop.' },
+        { i:3, char:'b', stack:['a','b'], phase:'push', popChar:null, desc:'Push \'b\'. stack=[a,b]. (This is the \'b\' we let go earlier, now back in a better spot!)' },
+
+        { i:4, char:'c', stack:['a','b'], phase:'check', popChar:null, desc:'i=4, char=\'c\'. Not in stack.' },
+        { i:4, char:'c', stack:['a','b'], phase:'compare', popChar:null, desc:'Top \'b\' > \'c\'? ❌ No → no pop.' },
+        { i:4, char:'c', stack:['a','b','c'], phase:'push', popChar:null, desc:'Push \'c\'. stack=[a,b,c].' },
+
+        { i:-1, char:null, stack:['a','b','c'], phase:'done', popChar:null, desc:'🎉 Done! Result: "abc" — smallest possible ordering with each letter exactly once.' },
+      ],
+    },
+    {
+      label: 'Example 2 — trickier case',
+      caption: 's="cbacdcbc" → "acdb"',
+      arr: ['c','b','a','c','d','c','b','c'],
+      expected: '"acdb"',
+      steps: [
+        { i:-1, char:null, stack:[], lastIndex:{a:2,b:6,c:7,d:4}, phase:'init', popChar:null, desc:'Precompute last occurrence: a→2, b→6, c→7, d→4.' },
+
+        { i:0, char:'c', stack:[], phase:'check', popChar:null, desc:'i=0, char=\'c\'. Not in stack.' },
+        { i:0, char:'c', stack:['c'], phase:'push', popChar:null, desc:'Push \'c\'. stack=[c].' },
+
+        { i:1, char:'b', stack:['c'], phase:'check', popChar:null, desc:'i=1, char=\'b\'. Not in stack.' },
+        { i:1, char:'b', stack:['c'], phase:'compare', popChar:'c', desc:'Top \'c\' > \'b\'? ✅ Yes. lastIndex[c]=7 > i(1)? ✅ Yes → safe to pop!' },
+        { i:1, char:'b', stack:[], phase:'pop', popChar:'c', desc:'Pop \'c\'. stack=[]. (c comes back at index 7.)' },
+        { i:1, char:'b', stack:['b'], phase:'push', popChar:null, desc:'Stack empty. Push \'b\'. stack=[b].' },
+
+        { i:2, char:'a', stack:['b'], phase:'check', popChar:null, desc:'i=2, char=\'a\'. Not in stack.' },
+        { i:2, char:'a', stack:['b'], phase:'compare', popChar:'b', desc:'Top \'b\' > \'a\'? ✅ Yes. lastIndex[b]=6 > i(2)? ✅ Yes → safe to pop!' },
+        { i:2, char:'a', stack:[], phase:'pop', popChar:'b', desc:'Pop \'b\'. stack=[]. (b comes back at index 6.)' },
+        { i:2, char:'a', stack:['a'], phase:'push', popChar:null, desc:'Stack empty. Push \'a\'. stack=[a].' },
+
+        { i:3, char:'c', stack:['a'], phase:'check', popChar:null, desc:'i=3, char=\'c\'. Not in stack.' },
+        { i:3, char:'c', stack:['a'], phase:'compare', popChar:null, desc:'Top \'a\' > \'c\'? ❌ No → no pop.' },
+        { i:3, char:'c', stack:['a','c'], phase:'push', popChar:null, desc:'Push \'c\'. stack=[a,c].' },
+
+        { i:4, char:'d', stack:['a','c'], phase:'check', popChar:null, desc:'i=4, char=\'d\'. Not in stack.' },
+        { i:4, char:'d', stack:['a','c'], phase:'compare', popChar:null, desc:'Top \'c\' > \'d\'? ❌ No → no pop.' },
+        { i:4, char:'d', stack:['a','c','d'], phase:'push', popChar:null, desc:'Push \'d\'. stack=[a,c,d].' },
+
+        { i:5, char:'c', stack:['a','c','d'], phase:'skip', popChar:null, desc:'i=5, char=\'c\'. Already in stack! ⏭️ Skip entirely — we never want two c\'s.' },
+
+        { i:6, char:'b', stack:['a','c','d'], phase:'check', popChar:null, desc:'i=6, char=\'b\'. Not in stack.' },
+        { i:6, char:'b', stack:['a','c','d'], phase:'compare', popChar:'d', desc:'Top \'d\' > \'b\'? ✅ Yes. But lastIndex[d]=4 > i(6)? ❌ No — d never comes back! Cannot pop.' },
+        { i:6, char:'b', stack:['a','c','d','b'], phase:'push', popChar:null, desc:'Must keep \'d\' (it\'s gone for good otherwise). Push \'b\' as-is. stack=[a,c,d,b].' },
+
+        { i:7, char:'c', stack:['a','c','d','b'], phase:'skip', popChar:null, desc:'i=7, char=\'c\'. Already in stack! ⏭️ Skip.' },
+
+        { i:-1, char:null, stack:['a','c','d','b'], phase:'done', popChar:null, desc:'🎉 Done! Result: "acdb". Notice \'d\' stayed even though \'b\' < \'d\', because d never reappears — popping it would have lost it forever.' },
+      ],
+    },
+    {
+      label: 'Example 3 — mid-string revisit',
+      caption: 's="abacb" → "abc"',
+      arr: ['a','b','a','c','b'],
+      expected: '"abc"',
+      steps: [
+        { i:-1, char:null, stack:[], lastIndex:{a:2,b:4,c:3}, phase:'init', popChar:null, desc:'Precompute last occurrence: a→2, b→4, c→3.' },
+
+        { i:0, char:'a', stack:[], phase:'check', popChar:null, desc:'i=0, char=\'a\'. Not in stack.' },
+        { i:0, char:'a', stack:['a'], phase:'push', popChar:null, desc:'Push \'a\'. stack=[a].' },
+
+        { i:1, char:'b', stack:['a'], phase:'check', popChar:null, desc:'i=1, char=\'b\'. Not in stack.' },
+        { i:1, char:'b', stack:['a'], phase:'compare', popChar:null, desc:'Top \'a\' > \'b\'? ❌ No → no pop.' },
+        { i:1, char:'b', stack:['a','b'], phase:'push', popChar:null, desc:'Push \'b\'. stack=[a,b].' },
+
+        { i:2, char:'a', stack:['a','b'], phase:'skip', popChar:null, desc:'i=2, char=\'a\'. Already in stack! ⏭️ Skip.' },
+
+        { i:3, char:'c', stack:['a','b'], phase:'check', popChar:null, desc:'i=3, char=\'c\'. Not in stack.' },
+        { i:3, char:'c', stack:['a','b'], phase:'compare', popChar:null, desc:'Top \'b\' > \'c\'? ❌ No → no pop.' },
+        { i:3, char:'c', stack:['a','b','c'], phase:'push', popChar:null, desc:'Push \'c\'. stack=[a,b,c].' },
+
+        { i:4, char:'b', stack:['a','b','c'], phase:'skip', popChar:null, desc:'i=4, char=\'b\'. Already in stack! ⏭️ Skip.' },
+
+        { i:-1, char:null, stack:['a','b','c'], phase:'done', popChar:null, desc:'🎉 Done! Result: "abc".' },
+      ],
+    },
+  ],
+},
+21: {
+  tests: [
+    {
+      label: 'Example 1',
+      caption: 'adjList=[[2,4],[1,3],[2,4],[1,3]] → 4-node cycle',
+      graphNodes: [
+        { id: 1, x: 0, y: 0 },
+        { id: 2, x: 1, y: 0 },
+        { id: 3, x: 1, y: 1 },
+        { id: 4, x: 0, y: 1 },
+      ],
+      graphEdges: [[1,2],[2,3],[3,4],[4,1]],
+      expected: '[[2,4],[1,3],[2,4],[1,3]]',
+      steps: [
+        { phase:'init', callStack:[], status:{1:'pending',2:'pending',3:'pending',4:'pending'}, activeNode:null, targetNode:null, cloneEdges:[], desc:'Start: cloneGraph(node 1) is called.' },
+
+        { phase:'call-new', callStack:[1], status:{1:'cloning',2:'pending',3:'pending',4:'pending'}, activeNode:1, targetNode:null, cloneEdges:[], desc:'clone(1): not yet in map → create copy1, store map[1]=copy1. Now process node 1\'s neighbors [2,4].' },
+
+        { phase:'call-new', callStack:[1,2], status:{1:'cloning',2:'cloning',3:'pending',4:'pending'}, activeNode:2, targetNode:null, cloneEdges:[], desc:'Node 1, neighbor 2: clone(2) called — not yet in map → create copy2. Process node 2\'s neighbors [1,3].' },
+
+        { phase:'call-visited', callStack:[1,2], status:{1:'cloning',2:'cloning',3:'pending',4:'pending'}, activeNode:2, targetNode:1, cloneEdges:[], desc:'Node 2, neighbor 1: clone(1) called — 1 IS already in map! Return existing copy1 immediately. This is what stops the infinite cycle.' },
+
+        { phase:'link', callStack:[1,2], status:{1:'cloning',2:'cloning',3:'pending',4:'pending'}, activeNode:2, targetNode:1, cloneEdges:[[1,2]], desc:'Link: copy2\'s neighbor list gets copy1. Edge 1↔2 now exists in the clone graph.' },
+
+        { phase:'call-new', callStack:[1,2,3], status:{1:'cloning',2:'cloning',3:'cloning',4:'pending'}, activeNode:3, targetNode:null, cloneEdges:[[1,2]], desc:'Node 2, neighbor 3: clone(3) called — not yet in map → create copy3. Process node 3\'s neighbors [2,4].' },
+
+        { phase:'call-visited', callStack:[1,2,3], status:{1:'cloning',2:'cloning',3:'cloning',4:'pending'}, activeNode:3, targetNode:2, cloneEdges:[[1,2]], desc:'Node 3, neighbor 2: clone(2) called — already in map! Return copy2.' },
+
+        { phase:'link', callStack:[1,2,3], status:{1:'cloning',2:'cloning',3:'cloning',4:'pending'}, activeNode:3, targetNode:2, cloneEdges:[[1,2],[2,3]], desc:'Link: copy3\'s neighbor list gets copy2. Edge 2↔3 now exists.' },
+
+        { phase:'call-new', callStack:[1,2,3,4], status:{1:'cloning',2:'cloning',3:'cloning',4:'cloning'}, activeNode:4, targetNode:null, cloneEdges:[[1,2],[2,3]], desc:'Node 3, neighbor 4: clone(4) called — not yet in map → create copy4. Process node 4\'s neighbors [1,3].' },
+
+        { phase:'call-visited', callStack:[1,2,3,4], status:{1:'cloning',2:'cloning',3:'cloning',4:'cloning'}, activeNode:4, targetNode:1, cloneEdges:[[1,2],[2,3]], desc:'Node 4, neighbor 1: clone(1) called — already in map! Return copy1.' },
+
+        { phase:'link', callStack:[1,2,3,4], status:{1:'cloning',2:'cloning',3:'cloning',4:'cloning'}, activeNode:4, targetNode:1, cloneEdges:[[1,2],[2,3],[1,4]], desc:'Link: copy4\'s neighbor list gets copy1. Edge 1↔4 now exists.' },
+
+        { phase:'call-visited', callStack:[1,2,3,4], status:{1:'cloning',2:'cloning',3:'cloning',4:'cloning'}, activeNode:4, targetNode:3, cloneEdges:[[1,2],[2,3],[1,4]], desc:'Node 4, neighbor 3: clone(3) called — already in map! Return copy3.' },
+
+        { phase:'link', callStack:[1,2,3,4], status:{1:'cloning',2:'cloning',3:'cloning',4:'cloning'}, activeNode:4, targetNode:3, cloneEdges:[[1,2],[2,3],[1,4],[3,4]], desc:'Link: copy4\'s neighbor list gets copy3. Edge 3↔4 now exists. Node 4 has no more neighbors!' },
+
+        { phase:'return', callStack:[1,2,3], status:{1:'cloning',2:'cloning',3:'cloning',4:'done'}, activeNode:3, targetNode:4, cloneEdges:[[1,2],[2,3],[1,4],[3,4]], desc:'clone(4) is fully done — pop it off the call stack, return copy4 back to node 3\'s loop.' },
+
+        { phase:'link', callStack:[1,2,3], status:{1:'cloning',2:'cloning',3:'cloning',4:'done'}, activeNode:3, targetNode:4, cloneEdges:[[1,2],[2,3],[1,4],[3,4]], desc:'Back in node 3: link copy3\'s neighbor list gets copy4 (edge 3↔4 already existed — this completes the mutual reference). Node 3 has no more neighbors!' },
+
+        { phase:'return', callStack:[1,2], status:{1:'cloning',2:'cloning',3:'done',4:'done'}, activeNode:2, targetNode:3, cloneEdges:[[1,2],[2,3],[1,4],[3,4]], desc:'clone(3) is fully done — pop it off the call stack, return copy3 back to node 2\'s loop.' },
+
+        { phase:'link', callStack:[1,2], status:{1:'cloning',2:'cloning',3:'done',4:'done'}, activeNode:2, targetNode:3, cloneEdges:[[1,2],[2,3],[1,4],[3,4]], desc:'Back in node 2: link copy2\'s neighbor list gets copy3 (edge 2↔3 already existed). Node 2 has no more neighbors!' },
+
+        { phase:'return', callStack:[1], status:{1:'cloning',2:'done',3:'done',4:'done'}, activeNode:1, targetNode:2, cloneEdges:[[1,2],[2,3],[1,4],[3,4]], desc:'clone(2) is fully done — pop it off the call stack, return copy2 back to node 1\'s loop.' },
+
+        { phase:'link', callStack:[1], status:{1:'cloning',2:'done',3:'done',4:'done'}, activeNode:1, targetNode:2, cloneEdges:[[1,2],[2,3],[1,4],[3,4]], desc:'Back in node 1: link copy1\'s neighbor list gets copy2 (edge 1↔2 already existed).' },
+
+        { phase:'call-visited', callStack:[1], status:{1:'cloning',2:'done',3:'done',4:'done'}, activeNode:1, targetNode:4, cloneEdges:[[1,2],[2,3],[1,4],[3,4]], desc:'Node 1, neighbor 4: clone(4) called — already in map! Return copy4.' },
+
+        { phase:'link', callStack:[1], status:{1:'cloning',2:'done',3:'done',4:'done'}, activeNode:1, targetNode:4, cloneEdges:[[1,2],[2,3],[1,4],[3,4]], desc:'Link: copy1\'s neighbor list gets copy4 (edge 1↔4 already existed). Node 1 has no more neighbors!' },
+
+        { phase:'done', callStack:[], status:{1:'done',2:'done',3:'done',4:'done'}, activeNode:null, targetNode:null, cloneEdges:[[1,2],[2,3],[1,4],[3,4]], desc:'🎉 clone(1) fully done — call stack empty. Every node has been deep-copied with matching neighbor connections!' },
+      ],
+    },
+    {
+      label: 'Example 2 — single node, no neighbors',
+      caption: 'adjList=[[]] → single isolated node',
+      graphNodes: [
+        { id: 1, x: 0, y: 0 },
+      ],
+      graphEdges: [],
+      expected: '[[]]',
+      steps: [
+        { phase:'init', callStack:[], status:{1:'pending'}, activeNode:null, targetNode:null, cloneEdges:[], desc:'Start: cloneGraph(node1). Node 1 has an empty neighbor list.' },
+        { phase:'call-new', callStack:[1], status:{1:'cloning'}, activeNode:1, targetNode:null, cloneEdges:[], desc:'clone(1): not in map → create copy1. Node 1 has NO neighbors — the loop body never executes.' },
+        { phase:'done', callStack:[], status:{1:'done'}, activeNode:null, targetNode:null, cloneEdges:[], desc:'🎉 clone(1) returns immediately with no linking needed. Result: one cloned node, zero edges.' },
+      ],
+    },
+    {
+      label: 'Example 3 — empty graph',
+      caption: 'adjList=[] → node is null',
+      graphNodes: [],
+      graphEdges: [],
+      expected: '[]',
+      steps: [
+        { phase:'done', callStack:[], status:{}, activeNode:null, targetNode:null, cloneEdges:[], desc:'Input node is null → cloneGraph returns null immediately. There is nothing to clone.' },
+      ],
+    },
+  ],
+},
+22: {
+  tests: [
+    {
+      label: 'Example 1 — identical trees',
+      caption: 'p=[1,2,3], q=[1,2,3] → true',
+      // Both trees:      1
+      //                 / \
+      //                2   3
+      pNodes: [
+        { idx: 0, val: 1, x: 1, y: 0, left: 1, right: 2 },
+        { idx: 1, val: 2, x: 0, y: 1, left: null, right: null },
+        { idx: 2, val: 3, x: 2, y: 1, left: null, right: null },
+      ],
+      qNodes: [
+        { idx: 0, val: 1, x: 1, y: 0, left: 1, right: 2 },
+        { idx: 1, val: 2, x: 0, y: 1, left: null, right: null },
+        { idx: 2, val: 3, x: 2, y: 1, left: null, right: null },
+      ],
+      expected: 'true',
+      steps: [
+        { pIdx:0, qIdx:0, phase:'compare-both-exist', result:null, desc:'Compare root p(1) vs q(1). Both exist.' },
+        { pIdx:0, qIdx:0, phase:'compare-values', result:null, desc:'p.val(1) == q.val(1) ✅ → values match. Recurse into left subtrees.' },
+
+        { pIdx:1, qIdx:1, phase:'compare-both-exist', result:null, desc:'Compare p.left(2) vs q.left(2). Both exist.' },
+        { pIdx:1, qIdx:1, phase:'compare-values', result:null, desc:'p.val(2) == q.val(2) ✅ → match. Recurse further left.' },
+
+        { pIdx:null, qIdx:null, phase:'both-null', result:true, desc:'p.left.left = null, q.left.left = null. Both null → match! Return true.' },
+        { pIdx:null, qIdx:null, phase:'both-null', result:true, desc:'p.left.right = null, q.left.right = null. Both null → match! Return true.' },
+        { pIdx:1, qIdx:1, phase:'subtree-done', result:true, desc:'✅ Node 2\'s whole subtree matches (left AND right both true). Bubble true back up.' },
+
+        { pIdx:2, qIdx:2, phase:'compare-both-exist', result:null, desc:'Back at root — now compare p.right(3) vs q.right(3). Both exist.' },
+        { pIdx:2, qIdx:2, phase:'compare-values', result:null, desc:'p.val(3) == q.val(3) ✅ → match.' },
+
+        { pIdx:null, qIdx:null, phase:'both-null', result:true, desc:'p.right.left = null, q.right.left = null. Both null → match!' },
+        { pIdx:null, qIdx:null, phase:'both-null', result:true, desc:'p.right.right = null, q.right.right = null. Both null → match!' },
+        { pIdx:2, qIdx:2, phase:'subtree-done', result:true, desc:'✅ Node 3\'s subtree matches too.' },
+
+        { pIdx:0, qIdx:0, phase:'done', result:true, desc:'🎉 Root\'s left AND right subtrees both matched → the trees are identical! Return true.' },
+      ],
+    },
+    {
+      label: 'Example 2 — different shapes',
+      caption: 'p=[1,2], q=[1,null,2] → false',
+      // p:      1          q:      1
+      //        /                    \
+      //       2                      2
+      pNodes: [
+        { idx: 0, val: 1, x: 0, y: 0, left: 1, right: null },
+        { idx: 1, val: 2, x: -1, y: 1, left: null, right: null },
+      ],
+      qNodes: [
+        { idx: 0, val: 1, x: 0, y: 0, left: null, right: 1 },
+        { idx: 1, val: 2, x: 1, y: 1, left: null, right: null },
+      ],
+      expected: 'false',
+      steps: [
+        { pIdx:0, qIdx:0, phase:'compare-both-exist', result:null, desc:'Compare root p(1) vs q(1). Both exist.' },
+        { pIdx:0, qIdx:0, phase:'compare-values', result:null, desc:'p.val(1) == q.val(1) ✅ → match. Recurse into left subtrees.' },
+
+        { pIdx:1, qIdx:null, phase:'one-null', result:false, desc:'Compare p.left(2) vs q.left(null). p has a node here, q does NOT — shapes differ! Return false immediately.' },
+
+        { pIdx:0, qIdx:0, phase:'done', result:false, desc:'🎉 Left subtree comparison already returned false — no need to even check the right side (short-circuit &&). Trees are NOT the same. Return false.' },
+      ],
+    },
+    {
+      label: 'Example 3 — same shape, different values',
+      caption: 'p=[1,2,1], q=[1,1,2] → false',
+      // p:      1          q:      1
+      //        / \                / \
+      //       2   1              1   2
+      pNodes: [
+        { idx: 0, val: 1, x: 1, y: 0, left: 1, right: 2 },
+        { idx: 1, val: 2, x: 0, y: 1, left: null, right: null },
+        { idx: 2, val: 1, x: 2, y: 1, left: null, right: null },
+      ],
+      qNodes: [
+        { idx: 0, val: 1, x: 1, y: 0, left: 1, right: 2 },
+        { idx: 1, val: 1, x: 0, y: 1, left: null, right: null },
+        { idx: 2, val: 2, x: 2, y: 1, left: null, right: null },
+      ],
+      expected: 'false',
+      steps: [
+        { pIdx:0, qIdx:0, phase:'compare-both-exist', result:null, desc:'Compare root p(1) vs q(1). Both exist.' },
+        { pIdx:0, qIdx:0, phase:'compare-values', result:null, desc:'p.val(1) == q.val(1) ✅ → match. Recurse into left subtrees.' },
+
+        { pIdx:1, qIdx:1, phase:'compare-both-exist', result:null, desc:'Compare p.left(2) vs q.left(1). Both exist.' },
+        { pIdx:1, qIdx:1, phase:'value-mismatch', result:false, desc:'p.val(2) != q.val(1) ❌ → VALUES DIFFER even though both nodes exist! Return false immediately.' },
+
+        { pIdx:0, qIdx:0, phase:'done', result:false, desc:'🎉 Left subtree comparison returned false → short-circuit, skip checking the right side entirely. Trees are NOT the same. Return false.' },
+      ],
+    },
+  ],
+},
+23: {
+  tests: [
+    {
+      label: 'Example 1 — perfect square',
+      caption: 'x=4 → 2',
+      x: 4,
+      expected: '2',
+      steps: [
+        { low:1, high:4, mid:null, sq:null, ans:0, phase:'init', desc:'x=4 (not 0 or 1). Search range: low=1, high=4, ans=0.' },
+
+        { low:1, high:4, mid:2, sq:4, ans:0, phase:'compute', desc:'mid = (1+4)/2 = 2. mid*mid = 2×2 = 4.' },
+        { low:1, high:4, mid:2, sq:4, ans:2, phase:'exact', desc:'mid*mid(4) == x(4) ✅ EXACT MATCH! Return 2 immediately — no need to keep searching.' },
+      ],
+    },
+    {
+      label: 'Example 2 — not a perfect square',
+      caption: 'x=8 → 2',
+      x: 8,
+      expected: '2',
+      steps: [
+        { low:1, high:8, mid:null, sq:null, ans:0, phase:'init', desc:'x=8 (not 0 or 1). Search range: low=1, high=8, ans=0.' },
+
+        { low:1, high:8, mid:4, sq:16, ans:0, phase:'compute', desc:'mid = (1+8)/2 = 4. mid*mid = 4×4 = 16.' },
+        { low:1, high:8, mid:4, sq:16, ans:0, phase:'too-big', desc:'mid*mid(16) > x(8) ❌ Too big! Search LEFT. high = mid-1 = 3.' },
+        { low:1, high:3, mid:null, sq:null, ans:0, phase:'narrow', desc:'low=1, high=3.' },
+
+        { low:1, high:3, mid:2, sq:4, ans:0, phase:'compute', desc:'mid = (1+3)/2 = 2. mid*mid = 2×2 = 4.' },
+        { low:1, high:3, mid:2, sq:4, ans:2, phase:'save-right', desc:'mid*mid(4) < x(8) ✅ mid=2 is a valid candidate! Save ans=2. Search RIGHT for something bigger. low = mid+1 = 3.' },
+        { low:3, high:3, mid:null, sq:null, ans:2, phase:'narrow', desc:'low=3, high=3.' },
+
+        { low:3, high:3, mid:3, sq:9, ans:2, phase:'compute', desc:'mid = (3+3)/2 = 3. mid*mid = 3×3 = 9.' },
+        { low:3, high:3, mid:3, sq:9, ans:2, phase:'too-big', desc:'mid*mid(9) > x(8) ❌ Too big! Search LEFT. high = mid-1 = 2.' },
+        { low:3, high:2, mid:null, sq:null, ans:2, phase:'narrow', desc:'low=3, high=2. low > high → loop ends.' },
+
+        { low:3, high:2, mid:null, sq:null, ans:2, phase:'done', desc:'🎉 Loop ended. Return the saved ans = 2. (√8 ≈ 2.828, floored to 2.)' },
+      ],
+    },
+    {
+      label: 'Example 3 — edge cases 0 and 1',
+      caption: 'x=0 → 0',
+      x: 0,
+      expected: '0',
+      steps: [
+        { low:null, high:null, mid:null, sq:null, ans:0, phase:'shortcut', desc:'x=0 → special case triggers immediately. Return 0 — no binary search needed.' },
+      ],
+    },
+    {
+      label: 'Example 4 — larger non-perfect square',
+      caption: 'x=17 → 4',
+      x: 17,
+      expected: '4',
+      steps: [
+        { low:1, high:17, mid:null, sq:null, ans:0, phase:'init', desc:'x=17. Search range: low=1, high=17, ans=0.' },
+
+        { low:1, high:17, mid:9, sq:81, ans:0, phase:'compute', desc:'mid = (1+17)/2 = 9. mid*mid = 9×9 = 81.' },
+        { low:1, high:17, mid:9, sq:81, ans:0, phase:'too-big', desc:'mid*mid(81) > x(17) ❌ Too big! Search LEFT. high = mid-1 = 8.' },
+        { low:1, high:8, mid:null, sq:null, ans:0, phase:'narrow', desc:'low=1, high=8.' },
+
+        { low:1, high:8, mid:4, sq:16, ans:0, phase:'compute', desc:'mid = (1+8)/2 = 4. mid*mid = 4×4 = 16.' },
+        { low:1, high:8, mid:4, sq:16, ans:4, phase:'save-right', desc:'mid*mid(16) < x(17) ✅ mid=4 is valid! Save ans=4. Search RIGHT. low = mid+1 = 5.' },
+        { low:5, high:8, mid:null, sq:null, ans:4, phase:'narrow', desc:'low=5, high=8.' },
+
+        { low:5, high:8, mid:6, sq:36, ans:4, phase:'compute', desc:'mid = (5+8)/2 = 6. mid*mid = 6×6 = 36.' },
+        { low:5, high:8, mid:6, sq:36, ans:4, phase:'too-big', desc:'mid*mid(36) > x(17) ❌ Too big! Search LEFT. high = mid-1 = 5.' },
+        { low:5, high:5, mid:null, sq:null, ans:4, phase:'narrow', desc:'low=5, high=5.' },
+
+        { low:5, high:5, mid:5, sq:25, ans:4, phase:'compute', desc:'mid = (5+5)/2 = 5. mid*mid = 5×5 = 25.' },
+        { low:5, high:5, mid:5, sq:25, ans:4, phase:'too-big', desc:'mid*mid(25) > x(17) ❌ Too big! Search LEFT. high = mid-1 = 4.' },
+        { low:5, high:4, mid:null, sq:null, ans:4, phase:'narrow', desc:'low=5, high=4. low > high → loop ends.' },
+
+        { low:5, high:4, mid:null, sq:null, ans:4, phase:'done', desc:'🎉 Loop ended. Return the saved ans = 4. (√17 ≈ 4.123, floored to 4.)' },
       ],
     },
   ],

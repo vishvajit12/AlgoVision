@@ -47,7 +47,7 @@ export default function WelcomeModal({ onClose }) {
               {step === 0 ? '👋' : '🤖'}
             </div>
             <h1 className="text-white font-black text-2xl tracking-tight mb-1">
-              {step === 0 ? 'Welcome to AnimeCode!' : `Hey, ${name}! 🎉`}
+              {step === 0 ? 'Welcome to AlgoVision!' : `Hey, ${name}! 🎉`}
             </h1>
             <p className="text-white/70 text-sm">
               {step === 0

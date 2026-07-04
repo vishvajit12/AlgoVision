@@ -11,9 +11,7 @@ export default function ProblemCard({ problem }) {
   const platColor     = PLATFORM_COLORS[problem.platform] || '#888';
 
   const handleClick = () => {
-    if (problem.animated) {
-      navigate(`/problem/${problem.id}`, { state: { problem } });
-    }
+    navigate(`/problem/${problem.id}`, { state: { problem } });
   };
 
   return (

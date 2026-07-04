@@ -89,7 +89,7 @@ export default function ContactPage() {
             OPEN SOURCE PROJECT
           </span>
           <h1 className="text-ink font-black text-4xl tracking-tight mb-3">
-            Contribute to AnimeCode
+            Contribute to AlgoVision
           </h1>
           <p className="text-gray-500 text-sm max-w-md mx-auto leading-relaxed">
             Help us build the world's first visual algorithm platform.
@@ -131,7 +131,7 @@ export default function ContactPage() {
                 className="mb-8 mt-4 italic"
                 style={{ fontFamily:'Georgia,serif', fontSize:16, color:'#555' }}
               >
-                Dear AnimeCode…
+                Dear AlgoVision…
               </p>
 
               <div className="flex flex-col gap-4">
@@ -269,7 +269,7 @@ export default function ContactPage() {
               >
                 <span className="text-xl"><Laptop /></span>
                 <span className="text-white font-black" style={{ fontSize:5, letterSpacing:'0.04em' }}>
-                  ANIMECODE
+                  ALGOVISION
                 </span>
               </div>
             </div>
