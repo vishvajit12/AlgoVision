@@ -27,7 +27,8 @@ import RemoveDuplicateLettersViz from '../animations/RemoveDuplicateLettersViz';
 import CloneGraphViz from '../animations/CloneGraphViz';
 import SameTreeViz from '../animations/SameTreeViz';
 import SqrtViz from '../animations/SqrtVizViz';
-
+import SortedArrayToBSTViz from '../animations/SortedArrayToBSTViz';
+import ShuffleArrayViz from '../animations/ShuffleArrayViz';
 
 const VIZ_MAP = { 1: TwoSumViz,
                   2: BinarySearchViz, 
@@ -52,6 +53,8 @@ const VIZ_MAP = { 1: TwoSumViz,
                   21: CloneGraphViz,
                   22: SameTreeViz,
                   23: SqrtViz, 
+                  24: SortedArrayToBSTViz,
+                  25: ShuffleArrayViz,
             };
 
 export default function AnimationPlayer({ problem }) {

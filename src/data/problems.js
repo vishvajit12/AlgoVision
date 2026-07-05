@@ -1213,14 +1213,121 @@ public:
 
         return ans`,
 },
+{
+  id: 24,
+  lc: 108,
+  title: 'Convert Sorted Array to Binary Search Tree',
+  platform: 'LeetCode',
+  diff: 'Easy',
+  topics: ['Array', 'Divide and Conquer', 'Tree', 'Binary Search Tree', 'Binary Tree'],
+  animated: true,
+  desc: 'Given an integer array nums sorted in ascending order, convert it to a height-balanced binary search tree.',
+  tc: 'O(n)',
+  sc: 'O(log n)  // recursion depth',
+  cpp: `/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* build(vector<int>& nums, int lo, int hi) {
+        if (lo > hi) return nullptr;
+
+        int mid = (lo + hi) / 2;
+        TreeNode* root = new TreeNode(nums[mid]);
+
+        root->left  = build(nums, lo, mid - 1);
+        root->right = build(nums, mid + 1, hi);
+
+        return root;
+    }
+
+    TreeNode* sortedArrayToBST(vector<int>& nums) {
+        return build(nums, 0, nums.size() - 1);
+    }
+};`,
+  py: `class Solution:
+    def sortedArrayToBST(self, nums: List[int]) -> Optional[TreeNode]:
+        def build(lo, hi):
+            if lo > hi:
+                return None
+
+            mid = (lo + hi) // 2
+            root = TreeNode(nums[mid])
+
+            root.left = build(lo, mid - 1)
+            root.right = build(mid + 1, hi)
+
+            return root
+
+        return build(0, len(nums) - 1)`,
+},
+{
+  id: 25,
+  lc: 384,
+  title: 'Shuffle an Array',
+  platform: 'LeetCode',
+  diff: 'Medium',
+  topics: ['Array', 'Math', 'Design', 'Randomized'],
+  animated: true,
+  desc: 'Design an algorithm to randomly shuffle an array so all permutations are equally likely. Implement reset() to restore the original array, and shuffle() to return a random shuffling.',
+  tc: 'O(n) per shuffle/reset',
+  sc: 'O(n)',
+  cpp: `class Solution {
+public:
+    vector<int> original;
+    vector<int> arr;
+
+    Solution(vector<int>& nums) {
+        original = nums;
+        arr = nums;
+    }
+
+    vector<int> reset() {
+        arr = original;
+        return arr;
+    }
+
+    vector<int> shuffle() {
+        for (int i = arr.size() - 1; i > 0; i--) {
+            int j = rand() % (i + 1);      // pick random index in [0, i]
+            swap(arr[i], arr[j]);
+        }
+        return arr;
+    }
+};`,
+  py: `import random
+
+class Solution:
+    def __init__(self, nums: List[int]):
+        self.original = nums[:]
+        self.arr = nums[:]
+
+    def reset(self) -> List[int]:
+        self.arr = self.original[:]
+        return self.arr
+
+    def shuffle(self) -> List[int]:
+        for i in range(len(self.arr) - 1, 0, -1):
+            j = random.randint(0, i)   # pick random index in [0, i]
+            self.arr[i], self.arr[j] = self.arr[j], self.arr[i]
+        return self.arr`,
+},
   { id:57, lc:56,  title:'Merge Intervals',                                platform:'LeetCode', diff:'Medium', topics:['Array','Greedy'], animated:false, tc:'O(n log n)', sc:'O(n)', desc:'Merge all overlapping intervals into one.' },
   // CodeChef
   { id:58, cc:'PRIMES',   title:'Prime Generator',       platform:'CodeChef', diff:'Easy',   topics:['Math'], animated:false, tc:'O(n log log n)', sc:'O(n)', desc:'Generate all prime numbers between M and N using Sieve of Eratosthenes.' },
   { id:59, cc:'FLOW007',  title:'Lucky Seven',           platform:'CodeChef', diff:'Easy',   topics:['Strings'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Check if a number contains digit 7 or is divisible by 7.' },
   { id:60, cc:'FCTRL',    title:'Factorial!',            platform:'CodeChef', diff:'Easy',   topics:['Math'], animated:false, tc:'O(n)', sc:'O(n)', desc:'Compute factorials of large numbers up to 100.' },
   // Codeforces
-  { id:24, cf:'4A',   title:'Watermelon',             platform:'Codeforces', diff:'Easy',   topics:['Math'], animated:false, tc:'O(1)', sc:'O(1)', desc:'Divide a watermelon of weight W into two even non-zero parts.' },
-  { id:25, cf:'1A',   title:'Theatre Square',         platform:'Codeforces', diff:'Easy',   topics:['Math'], animated:false, tc:'O(1)', sc:'O(1)', desc:'Find minimum flagstones to pave a rectangular theatre square.' },
+  { id:61, cf:'4A',   title:'Watermelon',             platform:'Codeforces', diff:'Easy',   topics:['Math'], animated:false, tc:'O(1)', sc:'O(1)', desc:'Divide a watermelon of weight W into two even non-zero parts.' },
+  { id:62, cf:'1A',   title:'Theatre Square',         platform:'Codeforces', diff:'Easy',   topics:['Math'], animated:false, tc:'O(1)', sc:'O(1)', desc:'Find minimum flagstones to pave a rectangular theatre square.' },
   { id:26, cf:'266B', title:'Queue at the School',    platform:'Codeforces', diff:'Easy',   topics:['Strings','Simulation'], animated:false, tc:'O(n·t)', sc:'O(n)', desc:'Simulate a queue where boys and girls swap positions each second.' },
  // ── LeetCode ──────────────────────────────────────────────
   { id:28, lc:53,  title:'Maximum Subarray',                platform:'LeetCode', diff:'Medium', topics:['Array','Divide and Conquer','Dynamic Programming'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Find the contiguous subarray with the largest sum and return that sum.' },

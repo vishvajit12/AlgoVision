@@ -11,7 +11,7 @@ const CORAL      = '#F05D58';
 const TEAL       = '#348681';
 
 // ── Google Form wiring ──
-const GOOGLE_FORM_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLSf_5Rkkhe-odWlMH5jHHMj5GLvYN4IPPHaxOlV-3SeTUzY8CQ/viewform?usp=dialog';
+const GOOGLE_FORM_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLSf_5Rkkhe-odWlMH5jHHMj5GLvYN4IPPHaxOlV-3SeTUzY8CQ/formResponse';
 const ENTRY_IDS = {
   name:        'entry.1644540531',
   email:       'entry.179061092',
@@ -38,7 +38,7 @@ export default function ContactPage() {
     }
     setLoading(true);
 
-    const data = new FormData();
+    const data = new URLSearchParams();
     data.append(ENTRY_IDS.name,        form.name);
     data.append(ENTRY_IDS.email,       form.email);
     data.append(ENTRY_IDS.platform,    form.platform);
@@ -49,8 +49,9 @@ export default function ContactPage() {
     try {
       await fetch(GOOGLE_FORM_ACTION, {
         method: 'POST',
-        mode:   'no-cors',   // Google Forms doesn't return CORS headers; required
-        body:   data,
+        mode:   'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body:   data.toString(),
       });
       // no-cors means we can't read the response, so we optimistically assume success
       setForm({ name:'', email:'', platform:'LeetCode', qNum:'', explanation:'', animIdea:'' });

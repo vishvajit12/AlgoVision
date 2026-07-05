@@ -285,6 +285,30 @@ export const SOLUTION_STEPS = {
     { num:5, icon:'🏁', title:'Return Saved ans',        desc:'If mid*mid > x, search left. When the loop ends, ans holds the largest mid whose square never exceeded x — that\'s floor(√x).' },
   ],
 },
+24: {
+  title: 'Divide and Conquer — Middle Element as Root',
+  approach:
+    'Since the array is already sorted, picking the MIDDLE element as the root guarantees roughly equal-sized left and right halves — which is exactly what makes the resulting tree height-balanced. Recursively apply the same idea: build(lo, hi) picks nums[mid] as the current subtree\'s root, then recursively builds the left child from the left half (lo to mid-1) and the right child from the right half (mid+1 to hi). The base case is when lo > hi — an empty range means no node here, return null.',
+  steps: [
+    { num:1, icon:'🎯', title:'Base Case: Empty Range', desc:'If lo > hi, there are no elements left in this range — return null (no node here).' },
+    { num:2, icon:'📐', title:'Pick the Middle',          desc:'mid = (lo+hi)/2. nums[mid] becomes the root of this subtree — the balance comes from always splitting in half.' },
+    { num:3, icon:'🆕', title:'Create the Node',           desc:'Make a new TreeNode with value nums[mid].' },
+    { num:4, icon:'⬅️', title:'Recurse Left Half',          desc:'root->left = build(lo, mid-1) — everything strictly smaller than nums[mid].' },
+    { num:5, icon:'➡️', title:'Recurse Right Half',          desc:'root->right = build(mid+1, hi) — everything strictly larger than nums[mid]. Return root once both sides are attached.' },
+  ],
+},
+25: {
+  title: 'Fisher-Yates Shuffle',
+  approach:
+    'Walk the array backwards, from the last index down to index 1. At each position i, pick a RANDOM index j somewhere in [0, i] (including i itself), then swap arr[i] and arr[j]. This guarantees every element has an equal chance of ending up in every position — because each step "locks in" one final position by swapping in a uniformly random candidate from everything not yet locked. Doing this for every index from the end down to 1 produces every permutation with equal probability. reset() simply restores the array to a saved copy of the original.',
+  steps: [
+    { num:1, icon:'💾', title:'Store the Original',    desc:'Constructor saves a copy of nums as "original" — this is what reset() will restore later.' },
+    { num:2, icon:'🔄', title:'Walk Backwards',         desc:'shuffle() starts at i = last index, moving down to i = 1 (never touching index 0 directly as i).' },
+    { num:3, icon:'🎲', title:'Pick Random j in [0, i]', desc:'At each i, generate a random index j between 0 and i (inclusive) — j could even equal i itself.' },
+    { num:4, icon:'🔀', title:'Swap arr[i] and arr[j]', desc:'Swap the two positions. This locks in a uniformly random value at position i.' },
+    { num:5, icon:'🏁', title:'Done at i = 0',           desc:'Once i reaches 0, every position has had a random element locked in. Return the fully shuffled array.' },
+  ],
+},
 };
 
 
@@ -2207,6 +2231,144 @@ export const TEST_CASES = {
         { low:5, high:4, mid:null, sq:null, ans:4, phase:'narrow', desc:'low=5, high=4. low > high → loop ends.' },
 
         { low:5, high:4, mid:null, sq:null, ans:4, phase:'done', desc:'🎉 Loop ended. Return the saved ans = 4. (√17 ≈ 4.123, floored to 4.)' },
+      ],
+    },
+  ],
+},
+24: {
+  tests: [
+    {
+      label: 'Example 1',
+      caption: 'nums=[-10,-3,0,5,9] → balanced BST rooted at 0',
+      arr: [-10, -3, 0, 5, 9],
+      treeNodes: [
+        { idx: 0, val: 0,   x: 2, y: 0, left: 1,    right: 3    },
+        { idx: 1, val: -10, x: 0, y: 1, left: null, right: 2    },
+        { idx: 2, val: -3,  x: 1, y: 2, left: null, right: null },
+        { idx: 3, val: 5,   x: 3, y: 1, left: null, right: 4    },
+        { idx: 4, val: 9,   x: 4, y: 2, left: null, right: null },
+      ],
+      expected: '[0,-3,9,-10,null,5]',
+      steps: [
+        { lo:0, hi:4, mid:2, activeIdx:null, status:{}, callStack:['(0,4)'], phase:'call', desc:'build(0,4): mid = (0+4)/2 = 2 → nums[2] = 0. This becomes the root.' },
+        { lo:0, hi:4, mid:2, activeIdx:0, status:{0:'created'}, callStack:['(0,4)'], phase:'create', desc:'✅ Root node created: value 0.' },
+
+        { lo:0, hi:1, mid:0, activeIdx:null, status:{0:'created'}, callStack:['(0,4)','(0,1)'], phase:'call', desc:'Recurse LEFT of root: build(0,1). mid = (0+1)/2 = 0 → nums[0] = -10.' },
+        { lo:0, hi:1, mid:0, activeIdx:1, status:{0:'created',1:'created'}, callStack:['(0,4)','(0,1)'], phase:'create', desc:'✅ Node created: value -10, attached as root\'s LEFT child.' },
+
+        { lo:0, hi:-1, mid:null, activeIdx:null, status:{0:'created',1:'created'}, callStack:['(0,4)','(0,1)','(0,-1)'], phase:'call', desc:'Recurse LEFT of -10: build(0,-1). lo(0) > hi(-1) → base case!' },
+        { lo:0, hi:-1, mid:null, activeIdx:null, status:{0:'created',1:'created'}, callStack:['(0,4)','(0,1)'], phase:'base-null', desc:'-10\'s left child is null — no elements remain in that range.' },
+
+        { lo:1, hi:1, mid:1, activeIdx:null, status:{0:'created',1:'created'}, callStack:['(0,4)','(0,1)','(1,1)'], phase:'call', desc:'Recurse RIGHT of -10: build(1,1). mid = (1+1)/2 = 1 → nums[1] = -3.' },
+        { lo:1, hi:1, mid:1, activeIdx:2, status:{0:'created',1:'created',2:'created'}, callStack:['(0,4)','(0,1)','(1,1)'], phase:'create', desc:'✅ Node created: value -3, attached as -10\'s RIGHT child.' },
+
+        { lo:1, hi:0, mid:null, activeIdx:null, status:{0:'created',1:'created',2:'created'}, callStack:['(0,4)','(0,1)','(1,1)'], phase:'base-null', desc:'-3\'s left (build(1,0)) and right (build(2,1)) are both empty ranges → both children null.' },
+
+        { lo:0, hi:1, mid:0, activeIdx:null, status:{0:'created',1:'created',2:'created'}, callStack:['(0,4)'], phase:'return', desc:'✅ Left subtree of root complete: -10 (right child -3). Pop back up to the root call.' },
+
+        { lo:3, hi:4, mid:3, activeIdx:null, status:{0:'created',1:'created',2:'created'}, callStack:['(0,4)','(3,4)'], phase:'call', desc:'Recurse RIGHT of root: build(3,4). mid = (3+4)/2 = 3 → nums[3] = 5.' },
+        { lo:3, hi:4, mid:3, activeIdx:3, status:{0:'created',1:'created',2:'created',3:'created'}, callStack:['(0,4)','(3,4)'], phase:'create', desc:'✅ Node created: value 5, attached as root\'s RIGHT child.' },
+
+        { lo:3, hi:2, mid:null, activeIdx:null, status:{0:'created',1:'created',2:'created',3:'created'}, callStack:['(0,4)','(3,4)'], phase:'base-null', desc:'5\'s left child (build(3,2)) is null — empty range.' },
+
+        { lo:4, hi:4, mid:4, activeIdx:null, status:{0:'created',1:'created',2:'created',3:'created'}, callStack:['(0,4)','(3,4)','(4,4)'], phase:'call', desc:'Recurse RIGHT of 5: build(4,4). mid = (4+4)/2 = 4 → nums[4] = 9.' },
+        { lo:4, hi:4, mid:4, activeIdx:4, status:{0:'created',1:'created',2:'created',3:'created',4:'created'}, callStack:['(0,4)','(3,4)','(4,4)'], phase:'create', desc:'✅ Node created: value 9, attached as 5\'s RIGHT child.' },
+
+        { lo:4, hi:3, mid:null, activeIdx:null, status:{0:'created',1:'created',2:'created',3:'created',4:'created'}, callStack:['(0,4)','(3,4)','(4,4)'], phase:'base-null', desc:'9 has no children — both subranges are empty.' },
+
+        { lo:3, hi:4, mid:3, activeIdx:null, status:{0:'created',1:'created',2:'created',3:'created',4:'created'}, callStack:['(0,4)'], phase:'return', desc:'✅ Right subtree of root complete: 5 (right child 9). Pop back up to the root call.' },
+
+        { lo:null, hi:null, mid:null, activeIdx:null, status:{0:'created',1:'created',2:'created',3:'created',4:'created'}, callStack:[], phase:'done', desc:'🎉 Tree fully built! Height-balanced: root 0 → left (-10→-3), right (5→9). Every split was as even as possible.' },
+      ],
+    },
+    {
+      label: 'Example 2',
+      caption: 'nums=[1,3] → [1,null,3]',
+      arr: [1, 3],
+      treeNodes: [
+        { idx: 0, val: 1, x: 0, y: 0, left: null, right: 1 },
+        { idx: 1, val: 3, x: 1, y: 1, left: null, right: null },
+      ],
+      expected: '[1,null,3]',
+      steps: [
+        { lo:0, hi:1, mid:0, activeIdx:null, status:{}, callStack:['(0,1)'], phase:'call', desc:'build(0,1): mid = (0+1)/2 = 0 → nums[0] = 1. This becomes the root.' },
+        { lo:0, hi:1, mid:0, activeIdx:0, status:{0:'created'}, callStack:['(0,1)'], phase:'create', desc:'✅ Root node created: value 1.' },
+
+        { lo:0, hi:-1, mid:null, activeIdx:null, status:{0:'created'}, callStack:['(0,1)','(0,-1)'], phase:'call', desc:'Recurse LEFT of root: build(0,-1). lo(0) > hi(-1) → base case!' },
+        { lo:0, hi:-1, mid:null, activeIdx:null, status:{0:'created'}, callStack:['(0,1)'], phase:'base-null', desc:'Root\'s left child is null — with only 2 elements, the left-biased mid puts nothing to the left.' },
+
+        { lo:1, hi:1, mid:1, activeIdx:null, status:{0:'created'}, callStack:['(0,1)','(1,1)'], phase:'call', desc:'Recurse RIGHT of root: build(1,1). mid = (1+1)/2 = 1 → nums[1] = 3.' },
+        { lo:1, hi:1, mid:1, activeIdx:1, status:{0:'created',1:'created'}, callStack:['(0,1)','(1,1)'], phase:'create', desc:'✅ Node created: value 3, attached as root\'s RIGHT child.' },
+
+        { lo:1, hi:0, mid:null, activeIdx:null, status:{0:'created',1:'created'}, callStack:['(0,1)','(1,1)'], phase:'base-null', desc:'3 has no children — both subranges are empty.' },
+
+        { lo:null, hi:null, mid:null, activeIdx:null, status:{0:'created',1:'created'}, callStack:[], phase:'done', desc:'🎉 Tree complete: [1, null, 3] — a valid height-balanced BST.' },
+      ],
+    },
+    {
+      label: 'Example 3 — single element',
+      caption: 'nums=[5] → [5]',
+      arr: [5],
+      treeNodes: [
+        { idx: 0, val: 5, x: 0, y: 0, left: null, right: null },
+      ],
+      expected: '[5]',
+      steps: [
+        { lo:0, hi:0, mid:0, activeIdx:null, status:{}, callStack:['(0,0)'], phase:'call', desc:'build(0,0): mid = (0+0)/2 = 0 → nums[0] = 5. This becomes the root.' },
+        { lo:0, hi:0, mid:0, activeIdx:0, status:{0:'created'}, callStack:['(0,0)'], phase:'create', desc:'✅ Root node created: value 5.' },
+        { lo:0, hi:-1, mid:null, activeIdx:null, status:{0:'created'}, callStack:['(0,0)'], phase:'base-null', desc:'Both left (build(0,-1)) and right (build(1,0)) are empty ranges — a single node has no children.' },
+        { lo:null, hi:null, mid:null, activeIdx:null, status:{0:'created'}, callStack:[], phase:'done', desc:'🎉 Tree complete: just [5], trivially balanced.' },
+      ],
+    },
+  ],
+},
+25: {
+  tests: [
+    {
+      label: 'Example 1 — shuffle, reset, shuffle',
+      caption: 'nums=[1,2,3] → shuffle → reset → shuffle',
+      original: [1, 2, 3],
+      expected: 'Any permutation each time (shown: [3,1,2], then [1,2,3], then [2,3,1])',
+      steps: [
+        { op:'init', arr:[1,2,3], original:[1,2,3], i:null, j:null, phase:'construct', desc:'Solution([1,2,3]) called. Save original=[1,2,3] and working arr=[1,2,3].' },
+
+        { op:'shuffle', arr:[1,2,3], original:[1,2,3], i:2, j:null, phase:'pick-j', desc:'shuffle() call #1. i=2 (last index). Pick a random j in [0,2] — say j=0.' },
+        { op:'shuffle', arr:[3,2,1], original:[1,2,3], i:2, j:0, phase:'swap', desc:'Swap arr[2]↔arr[0]: [1,2,3] → [3,2,1].' },
+
+        { op:'shuffle', arr:[3,2,1], original:[1,2,3], i:1, j:null, phase:'pick-j', desc:'i=1. Pick a random j in [0,1] — say j=1 (same index — a valid, if visually uneventful, outcome).' },
+        { op:'shuffle', arr:[3,2,1], original:[1,2,3], i:1, j:1, phase:'swap', desc:'Swap arr[1]↔arr[1]: no visible change. Array stays [3,2,1].' },
+
+        { op:'shuffle', arr:[3,2,1], original:[1,2,3], i:null, j:null, phase:'loop-end', desc:'i reached 0 — loop stops (index 0 is only ever touched as a possible j, never as i).' },
+        { op:'shuffle', arr:[3,1,2], original:[1,2,3], i:null, j:null, phase:'result', desc:'✅ shuffle() returns [3,1,2] for THIS run. Every one of the 3! = 6 permutations of [1,2,3] is equally likely on any given call — a different call could just as easily return [2,3,1] or [1,2,3] itself.' },
+
+        { op:'reset', arr:[1,2,3], original:[1,2,3], i:null, j:null, phase:'reset', desc:'reset() called. arr is restored from the saved original copy: [1,2,3].' },
+
+        { op:'shuffle', arr:[1,2,3], original:[1,2,3], i:2, j:null, phase:'pick-j', desc:'shuffle() call #2 — a FRESH random sequence, independent of call #1. i=2. Pick random j in [0,2] — say j=1.' },
+        { op:'shuffle', arr:[1,3,2], original:[1,2,3], i:2, j:1, phase:'swap', desc:'Swap arr[2]↔arr[1]: [1,2,3] → [1,3,2].' },
+
+        { op:'shuffle', arr:[1,3,2], original:[1,2,3], i:1, j:null, phase:'pick-j', desc:'i=1. Pick random j in [0,1] — say j=0.' },
+        { op:'shuffle', arr:[3,1,2], original:[1,2,3], i:1, j:0, phase:'swap', desc:'Swap arr[1]↔arr[0]: [1,3,2] → [3,1,2].' },
+
+        { op:'shuffle', arr:[3,1,2], original:[1,2,3], i:null, j:null, phase:'loop-end', desc:'i reached 0 — loop stops.' },
+        { op:'shuffle', arr:[3,1,2], original:[1,2,3], i:null, j:null, phase:'result', desc:'✅ This run\'s shuffle() returns [3,1,2] — coincidentally the same as call #1 here, but that\'s just one possible outcome. reset() always guarantees a clean slate before the next shuffle.' },
+      ],
+    },
+    {
+      label: 'Example 2 — reset restores exactly',
+      caption: 'nums=[4,-1,7] → shuffle → reset → reset',
+      original: [4, -1, 7],
+      expected: 'reset() always returns [4,-1,7] regardless of prior shuffles',
+      steps: [
+        { op:'init', arr:[4,-1,7], original:[4,-1,7], i:null, j:null, phase:'construct', desc:'Solution([4,-1,7]) called. original=[4,-1,7], arr=[4,-1,7].' },
+
+        { op:'shuffle', arr:[4,-1,7], original:[4,-1,7], i:2, j:null, phase:'pick-j', desc:'shuffle(): i=2. Random j in [0,2] — say j=2 (self-swap).' },
+        { op:'shuffle', arr:[4,-1,7], original:[4,-1,7], i:2, j:2, phase:'swap', desc:'Swap arr[2]↔arr[2]: no change.' },
+        { op:'shuffle', arr:[4,-1,7], original:[4,-1,7], i:1, j:null, phase:'pick-j', desc:'i=1. Random j in [0,1] — say j=0.' },
+        { op:'shuffle', arr:[-1,4,7], original:[4,-1,7], i:1, j:0, phase:'swap', desc:'Swap arr[1]↔arr[0]: [4,-1,7] → [-1,4,7].' },
+        { op:'shuffle', arr:[-1,4,7], original:[4,-1,7], i:null, j:null, phase:'result', desc:'✅ shuffle() returns [-1,4,7] — the working array is now scrambled, but original is untouched.' },
+
+        { op:'reset', arr:[4,-1,7], original:[4,-1,7], i:null, j:null, phase:'reset', desc:'reset() called. arr restored to original: [4,-1,7], regardless of how scrambled it was.' },
+        { op:'reset', arr:[4,-1,7], original:[4,-1,7], i:null, j:null, phase:'reset', desc:'reset() called again immediately — still [4,-1,7], since original never changes.' },
       ],
     },
   ],
