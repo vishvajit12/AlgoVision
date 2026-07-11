@@ -29,6 +29,8 @@ import SameTreeViz from '../animations/SameTreeViz';
 import SqrtViz from '../animations/SqrtVizViz';
 import SortedArrayToBSTViz from '../animations/SortedArrayToBSTViz';
 import ShuffleArrayViz from '../animations/ShuffleArrayViz';
+import PeekingIteratorViz from '../animations/PeekingIteratorViz';
+import LargestNumberViz from '../animations/LargestNumberViz';
 
 const VIZ_MAP = { 1: TwoSumViz,
                   2: BinarySearchViz, 
@@ -55,6 +57,8 @@ const VIZ_MAP = { 1: TwoSumViz,
                   23: SqrtViz, 
                   24: SortedArrayToBSTViz,
                   25: ShuffleArrayViz,
+                  26: PeekingIteratorViz,
+                  28: LargestNumberViz,
             };
 
 export default function AnimationPlayer({ problem }) {

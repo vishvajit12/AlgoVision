@@ -1320,6 +1320,118 @@ class Solution:
             self.arr[i], self.arr[j] = self.arr[j], self.arr[i]
         return self.arr`,
 },
+{
+  id: 26,
+  lc: 284,
+  title: 'Peeking Iterator',
+  platform: 'LeetCode',
+  diff: 'Medium',
+  topics: ['Array', 'Design', 'Iterator'],
+  animated: true,
+  desc: 'Design an iterator that supports peek() in addition to next() and hasNext() — peek() returns the next element without advancing the pointer.',
+  tc: 'O(1) per operation',
+  sc: 'O(1)',
+  cpp: `class PeekingIterator : public Iterator {
+private:
+    bool hasCached;
+    int cachedValue;
+
+public:
+    PeekingIterator(const vector<int>& nums) : Iterator(nums) {
+        hasCached = false;
+        cachedValue = 0;
+    }
+
+    int peek() {
+        if (!hasCached) {
+            cachedValue = Iterator::next();  // pull once from the real iterator
+            hasCached = true;
+        }
+        return cachedValue;
+    }
+
+    int next() {
+        if (hasCached) {
+            hasCached = false;
+            return cachedValue;              // return the cached value, don't touch real iterator
+        }
+        return Iterator::next();             // nothing cached — pull fresh
+    }
+
+    bool hasNext() const {
+        return hasCached || Iterator::hasNext();
+    }
+};`,
+  py: `class PeekingIterator:
+    def __init__(self, iterator):
+        self.iterator = iterator
+        self.has_cached = False
+        self.cached_value = None
+
+    def peek(self):
+        if not self.has_cached:
+            self.cached_value = self.iterator.next()   # pull once from the real iterator
+            self.has_cached = True
+        return self.cached_value
+
+    def next(self):
+        if self.has_cached:
+            self.has_cached = False
+            return self.cached_value                   # return cached, don't touch real iterator
+        return self.iterator.next()                     # nothing cached — pull fresh
+
+    def hasNext(self):
+        return self.has_cached or self.iterator.hasNext()`,
+},
+{
+  id: 28,
+  lc: 179,
+  title: 'Largest Number',
+  platform: 'LeetCode',
+  diff: 'Medium',
+  topics: ['Array', 'String', 'Greedy', 'Sorting'],
+  animated: true,
+  desc: 'Given a list of non-negative integers, arrange them so they form the largest possible number, and return it as a string.',
+  tc: 'O(n log n)',
+  sc: 'O(n)',
+  cpp: `class Solution {
+public:
+    string largestNumber(vector<int>& nums) {
+        vector<string> strs;
+        for (int n : nums) strs.push_back(to_string(n));
+
+        sort(strs.begin(), strs.end(), [](const string& a, const string& b) {
+            return a + b > b + a;   // custom comparator: concatenation order
+        });
+
+        if (strs[0] == "0") return "0";  // handle all-zero case
+
+        string result;
+        for (const string& s : strs) result += s;
+
+        return result;
+    }
+};`,
+  py: `from functools import cmp_to_key
+
+class Solution:
+    def largestNumber(self, nums: List[int]) -> str:
+        strs = [str(n) for n in nums]
+
+        def compare(a, b):
+            if a + b > b + a:
+                return -1   # a should come first
+            elif a + b < b + a:
+                return 1    # b should come first
+            return 0
+
+        strs.sort(key=cmp_to_key(compare))
+
+        if strs[0] == "0":
+            return "0"
+
+        return ''.join(strs)`,
+},
   { id:57, lc:56,  title:'Merge Intervals',                                platform:'LeetCode', diff:'Medium', topics:['Array','Greedy'], animated:false, tc:'O(n log n)', sc:'O(n)', desc:'Merge all overlapping intervals into one.' },
   // CodeChef
   { id:58, cc:'PRIMES',   title:'Prime Generator',       platform:'CodeChef', diff:'Easy',   topics:['Math'], animated:false, tc:'O(n log log n)', sc:'O(n)', desc:'Generate all prime numbers between M and N using Sieve of Eratosthenes.' },
@@ -1328,10 +1440,10 @@ class Solution:
   // Codeforces
   { id:61, cf:'4A',   title:'Watermelon',             platform:'Codeforces', diff:'Easy',   topics:['Math'], animated:false, tc:'O(1)', sc:'O(1)', desc:'Divide a watermelon of weight W into two even non-zero parts.' },
   { id:62, cf:'1A',   title:'Theatre Square',         platform:'Codeforces', diff:'Easy',   topics:['Math'], animated:false, tc:'O(1)', sc:'O(1)', desc:'Find minimum flagstones to pave a rectangular theatre square.' },
-  { id:26, cf:'266B', title:'Queue at the School',    platform:'Codeforces', diff:'Easy',   topics:['Strings','Simulation'], animated:false, tc:'O(n·t)', sc:'O(n)', desc:'Simulate a queue where boys and girls swap positions each second.' },
+  { id:63, cf:'266B', title:'Queue at the School',    platform:'Codeforces', diff:'Easy',   topics:['Strings','Simulation'], animated:false, tc:'O(n·t)', sc:'O(n)', desc:'Simulate a queue where boys and girls swap positions each second.' },
  // ── LeetCode ──────────────────────────────────────────────
-  { id:28, lc:53,  title:'Maximum Subarray',                platform:'LeetCode', diff:'Medium', topics:['Array','Divide and Conquer','Dynamic Programming'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Find the contiguous subarray with the largest sum and return that sum.' },
-  { id:29, lc:70,  title:'Climbing Stairs',                 platform:'LeetCode', diff:'Easy',   topics:['Math','Dynamic Programming','Memoization'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Count the distinct ways to climb n stairs taking 1 or 2 steps at a time.' },
+  { id:64, lc:53,  title:'Maximum Subarray',                platform:'LeetCode', diff:'Medium', topics:['Array','Divide and Conquer','Dynamic Programming'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Find the contiguous subarray with the largest sum and return that sum.' },
+  { id:65, lc:70,  title:'Climbing Stairs',                 platform:'LeetCode', diff:'Easy',   topics:['Math','Dynamic Programming','Memoization'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Count the distinct ways to climb n stairs taking 1 or 2 steps at a time.' },
   { id:30, lc:155, title:'Min Stack',                       platform:'LeetCode', diff:'Medium', topics:['Stack','Design'], animated:false, tc:'O(1) per op', sc:'O(n)', desc:'Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.' },
   { id:31, lc:206, title:'Reverse Linked List',              platform:'LeetCode', diff:'Easy',   topics:['Linked List','Recursion'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Reverse a singly linked list and return the new head.' },
   { id:32, lc:226, title:'Invert Binary Tree',                platform:'LeetCode', diff:'Easy',   topics:['Tree','Binary Tree','Depth-First Search','Breadth-First Search'], animated:false, tc:'O(n)', sc:'O(n)', desc:'Given the root of a binary tree, invert the tree and return its root.' },
