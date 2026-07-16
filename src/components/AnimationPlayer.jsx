@@ -31,6 +31,7 @@ import SortedArrayToBSTViz from '../animations/SortedArrayToBSTViz';
 import ShuffleArrayViz from '../animations/ShuffleArrayViz';
 import PeekingIteratorViz from '../animations/PeekingIteratorViz';
 import LargestNumberViz from '../animations/LargestNumberViz';
+import FlattenMultilevelListViz from '../animations/FlattenMultilevelListViz';
 
 const VIZ_MAP = { 1: TwoSumViz,
                   2: BinarySearchViz, 
@@ -59,6 +60,7 @@ const VIZ_MAP = { 1: TwoSumViz,
                   25: ShuffleArrayViz,
                   26: PeekingIteratorViz,
                   28: LargestNumberViz,
+                  29: FlattenMultilevelListViz,
             };
 
 export default function AnimationPlayer({ problem }) {

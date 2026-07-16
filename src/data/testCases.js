@@ -333,6 +333,18 @@
       { num:5, icon:'🔗', title:'Join and Return',          desc:'Concatenate every string in sorted order into one final result string.' },
     ],
   },
+  29: {
+  title: 'Recursive DFS — Splice Child List In Place',
+  approach:
+    'Walk the list with curr, saving nextNode = curr->next BEFORE any pointer surgery. If curr has a child, recursively flatten that child list first (this returns the TAIL of the fully-flattened child branch). Then splice: curr->next becomes the child head, the child head\'s prev becomes curr, and curr->child is cleared to null. If nextNode existed, reconnect the child\'s tail to it (childTail->next = nextNode, nextNode->prev = childTail). Update tail to childTail. If curr has no child, tail is just curr itself. Move curr to nextNode and repeat. Return tail at the end — this is what lets a PARENT call know where its child branch ended, so it can splice correctly too.',
+  steps: [
+    { num:1, icon:'👀', title:'Save nextNode First',    desc:'Before touching any pointers, save nextNode = curr->next — we\'ll need it after the splice.' },
+    { num:2, icon:'🔍', title:'Check for a Child',       desc:'If curr->child exists, this node has a nested list that must be flattened and inserted right here.' },
+    { num:3, icon:'🔄', title:'Recurse First',            desc:'Call solve(childHead) BEFORE doing any linking — this recursively flattens the ENTIRE child branch (and any of ITS children) and returns its tail.' },
+    { num:4, icon:'🔗', title:'Splice Child Into Chain',  desc:'curr->next = childHead, childHead->prev = curr, curr->child = null. If nextNode exists, childTail->next = nextNode and nextNode->prev = childTail.' },
+    { num:5, icon:'🏁', title:'Advance & Return Tail',     desc:'tail becomes childTail (or curr if no child). Move curr = nextNode and repeat. Return tail so any parent call knows where THIS level ended.' },
+  ],
+},
   };
 
 
@@ -2515,4 +2527,96 @@
       },
     ],
   },
+  29: {
+  tests: [
+    {
+      label: 'Example 1',
+      caption: 'Multilevel: 1-2-3-4-5-6, child of 3: 7-8-9-10, child of 8: 11-12',
+      nodes: [
+        { id: 1,  val: 1,  x: 0, y: 0, next: 2,    child: null },
+        { id: 2,  val: 2,  x: 1, y: 0, next: 3,    child: null },
+        { id: 3,  val: 3,  x: 2, y: 0, next: 4,    child: 7 },
+        { id: 4,  val: 4,  x: 3, y: 0, next: 5,    child: null },
+        { id: 5,  val: 5,  x: 4, y: 0, next: 6,    child: null },
+        { id: 6,  val: 6,  x: 5, y: 0, next: null, child: null },
+        { id: 7,  val: 7,  x: 2, y: 1, next: 8,    child: null },
+        { id: 8,  val: 8,  x: 3, y: 1, next: 9,    child: 11 },
+        { id: 9,  val: 9,  x: 4, y: 1, next: 10,   child: null },
+        { id: 10, val: 10, x: 5, y: 1, next: null, child: null },
+        { id: 11, val: 11, x: 3, y: 2, next: 12,   child: null },
+        { id: 12, val: 12, x: 4, y: 2, next: null, child: null },
+      ],
+      expected: '[1,2,3,7,8,11,12,9,10,4,5,6]',
+      steps: [
+        { callStack:[1], active:null, phase:'init', flat:[], links:[], desc:'flatten(1) called → solve(1). callStack=[solve(1)].' },
+
+        { callStack:[1], active:1, phase:'visit-no-child', flat:[1], links:[], desc:'curr=1. No child → tail=1. Append to flattened order: [1].' },
+        { callStack:[1], active:2, phase:'visit-no-child', flat:[1,2], links:[], desc:'curr=2. No child → tail=2. Flattened order: [1,2].' },
+
+        { callStack:[1], active:3, phase:'visit-has-child', flat:[1,2,3], links:[], desc:'curr=3. Has child(7)! Save nextNode=4. Must recurse BEFORE linking.' },
+        { callStack:[1,7], active:null, phase:'recurse-push', flat:[1,2,3], links:[], desc:'Push solve(7). callStack=[solve(1), solve(7)].' },
+
+        { callStack:[1,7], active:7, phase:'visit-no-child', flat:[1,2,3,7], links:[], desc:'Inside solve(7): curr=7. No child → tail=7. Flattened order: [...,7].' },
+
+        { callStack:[1,7], active:8, phase:'visit-has-child', flat:[1,2,3,7,8], links:[], desc:'curr=8. Has child(11)! Save nextNode=9. Must recurse BEFORE linking.' },
+        { callStack:[1,7,11], active:null, phase:'recurse-push', flat:[1,2,3,7,8], links:[], desc:'Push solve(11). callStack=[solve(1), solve(7), solve(11)] — 3 levels deep!' },
+
+        { callStack:[1,7,11], active:11, phase:'visit-no-child', flat:[1,2,3,7,8,11], links:[], desc:'Inside solve(11): curr=11. No child → tail=11.' },
+        { callStack:[1,7,11], active:12, phase:'visit-no-child', flat:[1,2,3,7,8,11,12], links:[], desc:'curr=12. No child → tail=12. curr becomes null → solve(11) about to return.' },
+
+        { callStack:[1,7], active:null, phase:'recurse-pop', flat:[1,2,3,7,8,11,12], links:[], desc:'solve(11) returns tail=12. Pop back to solve(7). childTail for node 8 = 12.' },
+
+        { callStack:[1,7], active:8, phase:'link', flat:[1,2,3,7,8,11,12], links:[[8,11],[12,9]], desc:'Splice: 8->next=11, 11->prev=8, 8.child=null. nextNode(9) exists → 12->next=9, 9->prev=12. tail=12. curr moves to 9.' },
+
+        { callStack:[1,7], active:9, phase:'visit-no-child', flat:[1,2,3,7,8,11,12,9], links:[[8,11],[12,9]], desc:'curr=9. No child → tail=9.' },
+        { callStack:[1,7], active:10, phase:'visit-no-child', flat:[1,2,3,7,8,11,12,9,10], links:[[8,11],[12,9]], desc:'curr=10. No child → tail=10. curr becomes null → solve(7) about to return.' },
+
+        { callStack:[1], active:null, phase:'recurse-pop', flat:[1,2,3,7,8,11,12,9,10], links:[[8,11],[12,9]], desc:'solve(7) returns tail=10. Pop back to solve(1). childTail for node 3 = 10.' },
+
+        { callStack:[1], active:3, phase:'link', flat:[1,2,3,7,8,11,12,9,10], links:[[8,11],[12,9],[3,7],[10,4]], desc:'Splice: 3->next=7, 7->prev=3, 3.child=null. nextNode(4) exists → 10->next=4, 4->prev=10. tail=10. curr moves to 4.' },
+
+        { callStack:[1], active:4, phase:'visit-no-child', flat:[1,2,3,7,8,11,12,9,10,4], links:[[8,11],[12,9],[3,7],[10,4]], desc:'curr=4. No child → tail=4.' },
+        { callStack:[1], active:5, phase:'visit-no-child', flat:[1,2,3,7,8,11,12,9,10,4,5], links:[[8,11],[12,9],[3,7],[10,4]], desc:'curr=5. No child → tail=5.' },
+        { callStack:[1], active:6, phase:'visit-no-child', flat:[1,2,3,7,8,11,12,9,10,4,5,6], links:[[8,11],[12,9],[3,7],[10,4]], desc:'curr=6. No child → tail=6. curr becomes null → solve(1) about to return.' },
+
+        { callStack:[], active:null, phase:'done', flat:[1,2,3,7,8,11,12,9,10,4,5,6], links:[[8,11],[12,9],[3,7],[10,4]], desc:'🎉 solve(1) returns tail=6. flatten() returns head=1. Final flattened list: [1,2,3,7,8,11,12,9,10,4,5,6].' },
+      ],
+    },
+    {
+      label: 'Example 2',
+      caption: '1-2, child of 1: single node 3',
+      nodes: [
+        { id: 1, val: 1, x: 0, y: 0, next: 2,    child: 3 },
+        { id: 2, val: 2, x: 1, y: 0, next: null, child: null },
+        { id: 3, val: 3, x: 0, y: 1, next: null, child: null },
+      ],
+      expected: '[1,3,2]',
+      steps: [
+        { callStack:[1], active:null, phase:'init', flat:[], links:[], desc:'flatten(1) called → solve(1). callStack=[solve(1)].' },
+
+        { callStack:[1], active:1, phase:'visit-has-child', flat:[1], links:[], desc:'curr=1. Has child(3)! Save nextNode=2. Must recurse BEFORE linking.' },
+        { callStack:[1,3], active:null, phase:'recurse-push', flat:[1], links:[], desc:'Push solve(3). callStack=[solve(1), solve(3)].' },
+
+        { callStack:[1,3], active:3, phase:'visit-no-child', flat:[1,3], links:[], desc:'Inside solve(3): curr=3. No child → tail=3. curr becomes null → solve(3) about to return.' },
+
+        { callStack:[1], active:null, phase:'recurse-pop', flat:[1,3], links:[], desc:'solve(3) returns tail=3. Pop back to solve(1). childTail for node 1 = 3.' },
+
+        { callStack:[1], active:1, phase:'link', flat:[1,3], links:[[1,3],[3,2]], desc:'Splice: 1->next=3, 3->prev=1, 1.child=null. nextNode(2) exists → 3->next=2, 2->prev=3. tail=3. curr moves to 2.' },
+
+        { callStack:[1], active:2, phase:'visit-no-child', flat:[1,3,2], links:[[1,3],[3,2]], desc:'curr=2. No child → tail=2. curr becomes null → solve(1) about to return.' },
+
+        { callStack:[], active:null, phase:'done', flat:[1,3,2], links:[[1,3],[3,2]], desc:'🎉 solve(1) returns tail=2. Final flattened list: [1,3,2].' },
+      ],
+    },
+    {
+      label: 'Example 3 — empty list',
+      caption: 'head = null',
+      nodes: [],
+      expected: '[]',
+      steps: [
+        { callStack:[], active:null, phase:'done', flat:[], links:[], desc:'head is null → flatten() returns null immediately. Nothing to do.' },
+      ],
+    },
+  ],
+},
   };

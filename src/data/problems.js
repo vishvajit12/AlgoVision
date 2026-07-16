@@ -1431,6 +1431,91 @@ class Solution:
             return "0"
 
         return ''.join(strs)`,
+},{
+  id: 29,
+  lc: 430,
+  title: 'Flatten a Multilevel Doubly Linked List',
+  platform: 'LeetCode',
+  diff: 'Medium',
+  topics: ['Linked List', 'Depth-First Search', 'Doubly Linked List'],
+  animated: true,
+  desc: 'Given a multilevel doubly linked list where nodes may have a child pointer to a separate sub-list, flatten it into a single-level doubly linked list. A node\'s child list must appear between it and its original next.',
+  tc: 'O(n)',
+  sc: 'O(d)  // d = max nesting depth, recursion stack',
+  cpp: `/*
+// Definition for a Node.
+class Node {
+public:
+    int val;
+    Node* prev;
+    Node* next;
+    Node* child;
+};
+*/
+class Solution {
+public:
+    Node* solve(Node* head) {
+        Node* curr = head;
+        Node* tail = head;
+        while(curr != nullptr) {
+            Node* nextNode = curr->next;
+            if(curr->child != nullptr) {
+                Node* childHead = curr->child;
+                // Recursively flatten child list
+                Node* childTail = solve(childHead);
+                // Insert child list between curr and nextNode
+                curr->next = childHead;
+                childHead->prev = curr;
+                curr->child = nullptr;
+                if(nextNode != nullptr) {
+                    childTail->next = nextNode;
+                    nextNode->prev = childTail;
+                }
+                tail = childTail;
+            }
+            else {
+                tail = curr;
+            }
+            curr = nextNode;
+        }
+        return tail;
+    }
+    Node* flatten(Node* head) {
+        if(head == nullptr)
+            return nullptr;
+        solve(head);
+        return head;
+    }
+};`,
+  py: `class Solution:
+    def solve(self, head):
+        curr = head
+        tail = head
+        while curr:
+            nextNode = curr.next
+            if curr.child:
+                childHead = curr.child
+                childTail = self.solve(childHead)   # recursively flatten child
+
+                curr.next = childHead
+                childHead.prev = curr
+                curr.child = None
+
+                if nextNode:
+                    childTail.next = nextNode
+                    nextNode.prev = childTail
+
+                tail = childTail
+            else:
+                tail = curr
+            curr = nextNode
+        return tail
+
+    def flatten(self, head: 'Optional[Node]') -> 'Optional[Node]':
+        if not head:
+            return None
+        self.solve(head)
+        return head`,
 },
   { id:57, lc:56,  title:'Merge Intervals',                                platform:'LeetCode', diff:'Medium', topics:['Array','Greedy'], animated:false, tc:'O(n log n)', sc:'O(n)', desc:'Merge all overlapping intervals into one.' },
   // CodeChef
