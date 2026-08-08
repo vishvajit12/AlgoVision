@@ -1516,6 +1516,54 @@ public:
             return None
         self.solve(head)
         return head`,
+},{
+  id: 30,
+  lc: 75,
+  title: 'Sort Colors',
+  platform: 'LeetCode',
+  diff: 'Medium',
+  topics: ['Array', 'Two Pointers', 'Sorting'],
+  animated: true,
+  desc: 'Given an array with only 0s, 1s, and 2s, sort it in-place so equal elements are adjacent, in the order 0,0,...,1,1,...,2,2 — without using a library sort.',
+  tc: 'O(n)',
+  sc: 'O(1)',
+  cpp: `class Solution {
+public:
+    void sortColors(vector<int>& nums) {
+        int low = 0, mid = 0, high = nums.size() - 1;
+
+        while (mid <= high) {
+            if (nums[mid] == 0) {
+                swap(nums[low], nums[mid]);
+                low++;
+                mid++;
+            }
+            else if (nums[mid] == 1) {
+                mid++;
+            }
+            else {  // nums[mid] == 2
+                swap(nums[mid], nums[high]);
+                high--;
+                // do NOT increment mid — the swapped-in value is unexamined
+            }
+        }
+    }
+};`,
+  py: `class Solution:
+    def sortColors(self, nums: List[int]) -> None:
+        low, mid, high = 0, 0, len(nums) - 1
+
+        while mid <= high:
+            if nums[mid] == 0:
+                nums[low], nums[mid] = nums[mid], nums[low]
+                low += 1
+                mid += 1
+            elif nums[mid] == 1:
+                mid += 1
+            else:  # nums[mid] == 2
+                nums[mid], nums[high] = nums[high], nums[mid]
+                high -= 1
+                # do NOT increment mid — the swapped-in value is unexamined`,
 },
   { id:57, lc:56,  title:'Merge Intervals',                                platform:'LeetCode', diff:'Medium', topics:['Array','Greedy'], animated:false, tc:'O(n log n)', sc:'O(n)', desc:'Merge all overlapping intervals into one.' },
   // CodeChef
@@ -1529,7 +1577,7 @@ public:
  // ── LeetCode ──────────────────────────────────────────────
   { id:64, lc:53,  title:'Maximum Subarray',                platform:'LeetCode', diff:'Medium', topics:['Array','Divide and Conquer','Dynamic Programming'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Find the contiguous subarray with the largest sum and return that sum.' },
   { id:65, lc:70,  title:'Climbing Stairs',                 platform:'LeetCode', diff:'Easy',   topics:['Math','Dynamic Programming','Memoization'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Count the distinct ways to climb n stairs taking 1 or 2 steps at a time.' },
-  { id:30, lc:155, title:'Min Stack',                       platform:'LeetCode', diff:'Medium', topics:['Stack','Design'], animated:false, tc:'O(1) per op', sc:'O(n)', desc:'Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.' },
+  { id:66, lc:155, title:'Min Stack',                       platform:'LeetCode', diff:'Medium', topics:['Stack','Design'], animated:false, tc:'O(1) per op', sc:'O(n)', desc:'Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.' },
   { id:31, lc:206, title:'Reverse Linked List',              platform:'LeetCode', diff:'Easy',   topics:['Linked List','Recursion'], animated:false, tc:'O(n)', sc:'O(1)', desc:'Reverse a singly linked list and return the new head.' },
   { id:32, lc:226, title:'Invert Binary Tree',                platform:'LeetCode', diff:'Easy',   topics:['Tree','Binary Tree','Depth-First Search','Breadth-First Search'], animated:false, tc:'O(n)', sc:'O(n)', desc:'Given the root of a binary tree, invert the tree and return its root.' },
   { id:33, lc:733, title:'Flood Fill',                        platform:'LeetCode', diff:'Easy',   topics:['Array','Depth-First Search','Breadth-First Search','Matrix'], animated:false, tc:'O(n·m)', sc:'O(n·m)', desc:'Perform a flood fill on an image starting from a given pixel, replacing connected same-colored pixels with a new color.' },

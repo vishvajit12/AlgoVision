@@ -345,9 +345,40 @@
     { num:5, icon:'🏁', title:'Advance & Return Tail',     desc:'tail becomes childTail (or curr if no child). Move curr = nextNode and repeat. Return tail so any parent call knows where THIS level ended.' },
   ],
 },
+30: {
+  title: 'Dutch National Flag — Three Pointers, One Pass',
+  approach:
+    'Maintain three pointers: low (boundary of the 0-region), mid (current element being examined), and high (boundary of the 2-region). The invariant: everything before low is 0, everything between low and mid is 1, everything after high is 2, and everything from mid to high is still unknown. At each step, look at nums[mid]: if it\'s 0, swap it to the low boundary and advance BOTH low and mid (the swapped-in value at mid is now confirmed to be a 1 — or was already checked). If it\'s 1, it\'s already in the right zone — just advance mid. If it\'s 2, swap it to the high boundary and decrement high — but do NOT advance mid, since the value swapped in from the high end hasn\'t been examined yet and could be a 0, 1, or 2 itself.',
+  steps: [
+    { num:1, icon:'🎯', title:'Init Three Pointers',   desc:'low=0, mid=0, high=n-1. Everything is "unknown" between mid and high initially.' },
+    { num:2, icon:'0️⃣', title:'nums[mid] == 0',         desc:'Swap nums[low] and nums[mid], then advance BOTH low++ and mid++ — the 0 is now correctly placed, and we can trust the swapped value at mid.' },
+    { num:3, icon:'1️⃣', title:'nums[mid] == 1',         desc:'Already in the correct middle zone — just advance mid++, no swap needed.' },
+    { num:4, icon:'2️⃣', title:'nums[mid] == 2',          desc:'Swap nums[mid] and nums[high], then decrement high-- ONLY — do not advance mid, since the newly swapped-in value at mid is still unexamined.' },
+    { num:5, icon:'🏁', title:'Done When mid > high',    desc:'Once mid crosses high, every element has been classified. The array is now sorted: 0s, then 1s, then 2s.' },
+  ],
+},
   };
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
 
 
 
@@ -2615,6 +2646,75 @@
       expected: '[]',
       steps: [
         { callStack:[], active:null, phase:'done', flat:[], links:[], desc:'head is null → flatten() returns null immediately. Nothing to do.' },
+      ],
+    },
+  ],
+},
+30: {
+  tests: [
+    {
+      label: 'Example 1',
+      caption: 'nums=[2,0,2,1,1,0] → [0,0,1,1,2,2]',
+      arr: [2, 0, 2, 1, 1, 0],
+      expected: '[0,0,1,1,2,2]',
+      steps: [
+        { low:0, mid:0, high:5, arr:[2,0,2,1,1,0], action:null, phase:'init', desc:'Init: low=0, mid=0, high=5.' },
+
+        { low:0, mid:0, high:5, arr:[2,0,2,1,1,0], action:'2', phase:'check', desc:'nums[mid=0]=2 → swap with high.' },
+        { low:0, mid:0, high:4, arr:[0,0,2,1,1,2], action:null, phase:'swap-high', desc:'Swap nums[0]↔nums[5]: [2,0,2,1,1,0]→[0,0,2,1,1,2]. high-- → 4. mid stays at 0 (unexamined value now there).' },
+
+        { low:0, mid:0, high:4, arr:[0,0,2,1,1,2], action:'0', phase:'check', desc:'nums[mid=0]=0 → swap with low.' },
+        { low:1, mid:1, high:4, arr:[0,0,2,1,1,2], action:null, phase:'swap-low', desc:'Swap nums[0]↔nums[0]: no visible change (low==mid). low++→1, mid++→1.' },
+
+        { low:1, mid:1, high:4, arr:[0,0,2,1,1,2], action:'0', phase:'check', desc:'nums[mid=1]=0 → swap with low.' },
+        { low:2, mid:2, high:4, arr:[0,0,2,1,1,2], action:null, phase:'swap-low', desc:'Swap nums[1]↔nums[1]: no visible change. low++→2, mid++→2.' },
+
+        { low:2, mid:2, high:4, arr:[0,0,2,1,1,2], action:'2', phase:'check', desc:'nums[mid=2]=2 → swap with high.' },
+        { low:2, mid:2, high:3, arr:[0,0,1,1,2,2], action:null, phase:'swap-high', desc:'Swap nums[2]↔nums[4]: [0,0,2,1,1,2]→[0,0,1,1,2,2]. high--→3. mid stays at 2 (unexamined value now there).' },
+
+        { low:2, mid:2, high:3, arr:[0,0,1,1,2,2], action:'1', phase:'check', desc:'nums[mid=2]=1 → already correct zone.' },
+        { low:2, mid:3, high:3, arr:[0,0,1,1,2,2], action:null, phase:'advance-mid', desc:'Just advance mid++→3. No swap needed.' },
+
+        { low:2, mid:3, high:3, arr:[0,0,1,1,2,2], action:'1', phase:'check', desc:'nums[mid=3]=1 → already correct zone.' },
+        { low:2, mid:4, high:3, arr:[0,0,1,1,2,2], action:null, phase:'advance-mid', desc:'Advance mid++→4. Now mid(4) > high(3) → loop ends!' },
+
+        { low:2, mid:4, high:3, arr:[0,0,1,1,2,2], action:null, phase:'done', desc:'🎉 mid > high → done! Final sorted array: [0,0,1,1,2,2].' },
+      ],
+    },
+    {
+      label: 'Example 2 — already sorted',
+      caption: 'nums=[2,0,1] → [0,1,2]',
+      arr: [2, 0, 1],
+      expected: '[0,1,2]',
+      steps: [
+        { low:0, mid:0, high:2, arr:[2,0,1], action:null, phase:'init', desc:'Init: low=0, mid=0, high=2.' },
+
+        { low:0, mid:0, high:2, arr:[2,0,1], action:'2', phase:'check', desc:'nums[mid=0]=2 → swap with high.' },
+        { low:0, mid:0, high:1, arr:[1,0,2], action:null, phase:'swap-high', desc:'Swap nums[0]↔nums[2]: [2,0,1]→[1,0,2]. high--→1. mid stays at 0.' },
+
+        { low:0, mid:0, high:1, arr:[1,0,2], action:'1', phase:'check', desc:'nums[mid=0]=1 → already correct zone.' },
+        { low:0, mid:1, high:1, arr:[1,0,2], action:null, phase:'advance-mid', desc:'Advance mid++→1.' },
+
+        { low:0, mid:1, high:1, arr:[1,0,2], action:'0', phase:'check', desc:'nums[mid=1]=0 → swap with low.' },
+        { low:1, mid:2, high:1, arr:[0,1,2], action:null, phase:'swap-low', desc:'Swap nums[1]↔nums[0]: [1,0,2]→[0,1,2]. low++→1, mid++→2. Now mid(2) > high(1) → loop ends!' },
+
+        { low:1, mid:2, high:1, arr:[0,1,2], action:null, phase:'done', desc:'🎉 mid > high → done! Final sorted array: [0,1,2].' },
+      ],
+    },
+    {
+      label: 'Example 3 — all same color',
+      caption: 'nums=[1,1,1] → [1,1,1]',
+      arr: [1, 1, 1],
+      expected: '[1,1,1]',
+      steps: [
+        { low:0, mid:0, high:2, arr:[1,1,1], action:null, phase:'init', desc:'Init: low=0, mid=0, high=2.' },
+        { low:0, mid:0, high:2, arr:[1,1,1], action:'1', phase:'check', desc:'nums[mid=0]=1 → already correct zone.' },
+        { low:0, mid:1, high:2, arr:[1,1,1], action:null, phase:'advance-mid', desc:'Advance mid++→1.' },
+        { low:0, mid:1, high:2, arr:[1,1,1], action:'1', phase:'check', desc:'nums[mid=1]=1 → already correct zone.' },
+        { low:0, mid:2, high:2, arr:[1,1,1], action:null, phase:'advance-mid', desc:'Advance mid++→2.' },
+        { low:0, mid:2, high:2, arr:[1,1,1], action:'1', phase:'check', desc:'nums[mid=2]=1 → already correct zone.' },
+        { low:0, mid:3, high:2, arr:[1,1,1], action:null, phase:'advance-mid', desc:'Advance mid++→3. Now mid(3) > high(2) → loop ends!' },
+        { low:0, mid:3, high:2, arr:[1,1,1], action:null, phase:'done', desc:'🎉 Done! Array was already uniform: [1,1,1].' },
       ],
     },
   ],
